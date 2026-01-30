@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443 fulcio.sigstore.dev:443 github.com:443
+            registry.npmjs.org:443 rekor.sigstore.dev:443
+            release-assets.githubusercontent.com:443
+
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Install Tools
+        uses: ./.github/actions/install-tools
+
+      - name: Install Dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Build Package
+        uses: ./.github/actions/build-package
+
+      - name: Create GitHub Release
+        run: pnpm run ci:changelog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Clear Package JSON
+        run: pnpm run ci:clear
+
+      - name: Publish Root Package to NPM
+        run: npm publish --no-git-checks
