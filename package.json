@@ -1,6 +1,6 @@
 {
   "name": "@azat-io/ai-config",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "AI shareable config",
   "keywords": [
     "eslint",
@@ -16,6 +16,8 @@
   "license": "MIT",
   "author": "Azat S. <to@azat.io>",
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "ai-config": "./bin/ai-config.js"
   },
