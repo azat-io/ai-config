@@ -8,8 +8,8 @@
   width="160"
 />
 
-[![Version](https://img.shields.io/npm/v/@azat-io/ai-config.svg?color=fff&labelColor=f580b1)](https://npmjs.com/package/@azat-io/ai-config)
-[![GitHub License](https://img.shields.io/badge/license-MIT-232428.svg?color=fff&labelColor=f580b1)](https://github.com/azat-io/ai-config/blob/main/license.md)
+[![Version](https://img.shields.io/npm/v/@azat-io/ai-config.svg?color=fff&labelColor=fc60bc)](https://npmjs.com/package/@azat-io/ai-config)
+[![GitHub License](https://img.shields.io/badge/license-MIT-232428.svg?color=fff&labelColor=fc60bc)](https://github.com/azat-io/ai-config/blob/main/license.md)
 
 A unified configuration manager for AI coding assistants that keeps Claude Code,
 Codex, Gemini CLI, and OpenCode settings in sync.
