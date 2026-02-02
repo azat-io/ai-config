@@ -15,10 +15,8 @@ A unified configuration manager for AI coding assistants that keeps Claude Code,
 Codex, Gemini CLI, and OpenCode settings in sync.
 
 Seamlessly deploy consistent instructions, commands, skills, and MCP
-integrations across multiple agents through a single installer.
-
-This config centralizes AI tool setup in one place, ensuring consistent coding
-standards and reducing manual maintenance across different agent formats.
+integrations across agents through a single installer, centralizing setup and
+reducing maintenance.
 
 ## Why
 
@@ -44,6 +42,24 @@ The installer will:
 - Ask for install scope (project or home)
 - Ask which MCP servers to install
 - Prompt for `GITHUB_PERSONAL_ACCESS_TOKEN` only if GitHub MCP is selected
+
+<br>
+
+<picture>
+  <source
+    srcset="https://raw.githubusercontent.com/azat-io/ai-config/main/assets/example-light.webp"
+    media="(prefers-color-scheme: light)"
+  />
+  <source
+    srcset="https://raw.githubusercontent.com/azat-io/ai-config/main/assets/example-dark.webp"
+    media="(prefers-color-scheme: dark)"
+  />
+  <img
+    src="https://raw.githubusercontent.com/azat-io/ai-config/main/assets/example-light.webp"
+    alt="Actions Up! interactive example"
+    width="820"
+  />
+</picture>
 
 ## What Gets Installed
 
