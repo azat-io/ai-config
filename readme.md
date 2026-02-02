@@ -126,41 +126,41 @@ Uses the user config directories:
 
 ### Commands
 
-| Command        | Description                                               |
-| -------------- | --------------------------------------------------------- |
-| `/commit`      | Generate Conventional Commits message from staged changes |
-| `/code-review` | Review code quality before merge                          |
-| `/discovery`   | Clarify vague ideas and align on scope                    |
-| `/implement`   | Execute an approved implementation plan                   |
-| `/research`    | Explore technical approaches when requirements are fuzzy  |
+| Command                                                                                  | Description                                               |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| [`/commit`](https://github.com/azat-io/ai-config/blob/main/commands/commit.md)           | Generate Conventional Commits message from staged changes |
+| [`/code-review`](https://github.com/azat-io/ai-config/blob/main/commands/code-review.md) | Review code quality before merge                          |
+| [`/discovery`](https://github.com/azat-io/ai-config/blob/main/commands/discovery.md)     | Clarify vague ideas and align on scope                    |
+| [`/implement`](https://github.com/azat-io/ai-config/blob/main/commands/implement.md)     | Execute an approved implementation plan                   |
+| [`/research`](https://github.com/azat-io/ai-config/blob/main/commands/research.md)       | Explore technical approaches when requirements are fuzzy  |
 
 ### Skills
 
-| Skill                | Description                                           |
-| -------------------- | ----------------------------------------------------- |
-| `creating-skills`    | Create reusable techniques and patterns for AI agents |
-| `creating-subagents` | Create specialized subagents for recurring tasks      |
-| `discovering`        | Clarify goals and scope when the what/why is unclear  |
-| `implementing`       | Execute an approved implementation plan               |
-| `planning`           | Write detailed implementation plans before coding     |
-| `researching`        | Choose technical approaches when the how is unclear   |
+| Skill                                                                                                     | Description                                           |
+| --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| [`creating-skills`](https://github.com/azat-io/ai-config/blob/main/skills/creating-skills/skill.md)       | Create reusable techniques and patterns for AI agents |
+| [`creating-subagents`](https://github.com/azat-io/ai-config/blob/main/skills/creating-subagents/skill.md) | Create specialized subagents for recurring tasks      |
+| [`discovering`](https://github.com/azat-io/ai-config/blob/main/skills/discovering/skill.md)               | Clarify goals and scope when the what/why is unclear  |
+| [`implementing`](https://github.com/azat-io/ai-config/blob/main/skills/implementing/skill.md)             | Execute an approved implementation plan               |
+| [`planning`](https://github.com/azat-io/ai-config/blob/main/skills/planning/skill.md)                     | Write detailed implementation plans before coding     |
+| [`researching`](https://github.com/azat-io/ai-config/blob/main/skills/researching/skill.md)               | Choose technical approaches when the how is unclear   |
 
 ### Agents
 
-| Agent                  | Description                                                |
-| ---------------------- | ---------------------------------------------------------- |
-| `code-reviewer`        | Review code for correctness, security, and maintainability |
-| `documentation-writer` | Write README, API docs, JSDoc, and contributing guides     |
-| `implementer`          | Implement features following plans and specs               |
-| `test-writer`          | Write focused tests with full code path coverage           |
+| Agent                                                                                                   | Description                                                |
+| ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| [`code-reviewer`](https://github.com/azat-io/ai-config/blob/main/agents/code-reviewer.md)               | Review code for correctness, security, and maintainability |
+| [`documentation-writer`](https://github.com/azat-io/ai-config/blob/main/agents/documentation-writer.md) | Write README, API docs, JSDoc, and contributing guides     |
+| [`implementer`](https://github.com/azat-io/ai-config/blob/main/agents/implementer.md)                   | Implement features following plans and specs               |
+| [`test-writer`](https://github.com/azat-io/ai-config/blob/main/agents/test-writer.md)                   | Write focused tests with full code path coverage           |
 
 ### MCP Integrations
 
-| Server              | Description                                 |
-| ------------------- | ------------------------------------------- |
-| GitHub              | Work with repos, issues, and pull requests  |
-| Sequential Thinking | Step-by-step reasoning for complex problems |
-| Fetch               | Fetch and process web pages                 |
+| Server                                                                                                  | Description                                 |
+| ------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| [GitHub](https://github.com/github/github-mcp-server)                                                   | Work with repos, issues, and pull requests  |
+| [Sequential Thinking](https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking) | Step-by-step reasoning for complex problems |
+| [Fetch](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch)                            | Fetch and process web pages                 |
 
 ## See also
 
