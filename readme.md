@@ -56,7 +56,7 @@ The installer will:
   />
   <img
     src="https://raw.githubusercontent.com/azat-io/ai-config/main/assets/example-light.webp"
-    alt="Actions Up! interactive example"
+    alt="AI config interactive example"
     width="820"
   />
 </picture>
@@ -128,22 +128,23 @@ Uses the user config directories:
 
 | Command                                                                                  | Description                                               |
 | ---------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| [`/commit`](https://github.com/azat-io/ai-config/blob/main/commands/commit.md)           | Generate Conventional Commits message from staged changes |
 | [`/code-review`](https://github.com/azat-io/ai-config/blob/main/commands/code-review.md) | Review code quality before merge                          |
+| [`/commit`](https://github.com/azat-io/ai-config/blob/main/commands/commit.md)           | Generate Conventional Commits message from staged changes |
 | [`/discovery`](https://github.com/azat-io/ai-config/blob/main/commands/discovery.md)     | Clarify vague ideas and align on scope                    |
 | [`/implement`](https://github.com/azat-io/ai-config/blob/main/commands/implement.md)     | Execute an approved implementation plan                   |
 | [`/research`](https://github.com/azat-io/ai-config/blob/main/commands/research.md)       | Explore technical approaches when requirements are fuzzy  |
 
 ### Skills
 
-| Skill                                                                                                     | Description                                           |
-| --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| [`creating-skills`](https://github.com/azat-io/ai-config/blob/main/skills/creating-skills/skill.md)       | Create reusable techniques and patterns for AI agents |
-| [`creating-subagents`](https://github.com/azat-io/ai-config/blob/main/skills/creating-subagents/skill.md) | Create specialized subagents for recurring tasks      |
-| [`discovering`](https://github.com/azat-io/ai-config/blob/main/skills/discovering/skill.md)               | Clarify goals and scope when the what/why is unclear  |
-| [`implementing`](https://github.com/azat-io/ai-config/blob/main/skills/implementing/skill.md)             | Execute an approved implementation plan               |
-| [`planning`](https://github.com/azat-io/ai-config/blob/main/skills/planning/skill.md)                     | Write detailed implementation plans before coding     |
-| [`researching`](https://github.com/azat-io/ai-config/blob/main/skills/researching/skill.md)               | Choose technical approaches when the how is unclear   |
+| Skill                                                                                                     | Description                                                     |
+| --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| [`creating-skills`](https://github.com/azat-io/ai-config/blob/main/skills/creating-skills/skill.md)       | Create reusable techniques and patterns for AI agents           |
+| [`creating-subagents`](https://github.com/azat-io/ai-config/blob/main/skills/creating-subagents/skill.md) | Create specialized subagents for recurring tasks                |
+| [`discovering`](https://github.com/azat-io/ai-config/blob/main/skills/discovering/skill.md)               | Clarify goals and scope when the what/why is unclear            |
+| [`implementing`](https://github.com/azat-io/ai-config/blob/main/skills/implementing/skill.md)             | Execute an approved implementation plan                         |
+| [`planning`](https://github.com/azat-io/ai-config/blob/main/skills/planning/skill.md)                     | Write detailed implementation plans before coding               |
+| [`refactoring`](https://github.com/azat-io/ai-config/blob/main/skills/refactoring/skill.md)               | Behavior-preserving restructuring for clarity and safer changes |
+| [`researching`](https://github.com/azat-io/ai-config/blob/main/skills/researching/skill.md)               | Choose technical approaches when the how is unclear             |
 
 ### Agents
 
