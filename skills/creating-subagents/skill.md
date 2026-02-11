@@ -130,6 +130,7 @@ When agent fails, identify the gap:
 - [ ] Prompt is minimal and focused
 - [ ] Output format defined
 - [ ] Tested on real task
+- [ ] Related section linking to commands and skills
 - [ ] Iterated based on failures
 
 ## Pipeline Pattern

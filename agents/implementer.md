@@ -86,3 +86,8 @@ Output before writing:
 ## Missing context
 
 Ask one question or proceed with explicit assumptions plus confidence (H/M/L).
+
+## Related
+
+- Command: `/implement`
+- Skills: **implementing**, **planning**

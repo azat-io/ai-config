@@ -43,11 +43,15 @@ linting.
 | God class     | Split responsibilities        |
 | Duplication   | Extract shared function       |
 
-## If It Gets Complex
+## Delegate
 
-- Use planning skill for multi-step refactors that need sequencing
-- Use researching skill when the right approach is unclear
-- Use test-writer agent to add characterization tests when no safety net exists
+- Use **test-writer** agent to add characterization tests when no safety net
+  exists
+- Use **planning** skill for multi-step refactors that need sequencing
+- Use **researching** skill when the right approach is unclear
+- Use **code-reviewer** agent to verify after refactoring
+
+Pipeline: refactoring → code-review
 
 ## Core Pattern
 

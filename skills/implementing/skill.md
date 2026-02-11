@@ -60,6 +60,14 @@ Skip if: there is no plan (write one first) or the task is trivial.
 - Do not reorder tasks unless the plan says so
 - Stop and ask if blocked or if verification fails
 
+## Delegate
+
+- Use **implementer** agent for code changes per task
+- Use **test-writer** agent if tests are missing
+- Use **code-reviewer** agent after completion
+
+Pipeline: discovering → researching → planning → **implementing** → code-review
+
 ## Common Mistakes
 
 - Skipping verification to "save time"

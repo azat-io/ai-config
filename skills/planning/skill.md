@@ -122,6 +122,14 @@ Each step is one atomic action:
 | TDD for everything   | TDD for functional changes only |
 | Scope creep          | Stick to goal, YAGNI            |
 
+## Delegate
+
+- Use **Explore** subagent to inventory files and entry points
+- Use **test-writer** agent for TDD tasks in plan
+
 ## After Planning
 
-Hand off to **implementer** with the plan.
+Hand off to **implementer** agent (or use **implementing** skill for
+step-by-step execution with checkpoints).
+
+Pipeline: discovering → researching → **planning** → implementing → code-review

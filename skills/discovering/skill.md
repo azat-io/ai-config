@@ -69,7 +69,14 @@ Get sign-off before proceeding.
 | No clear recommendation           | Always pick one direction and explain why |
 | Proceeding without sign-off       | Get explicit confirmation                 |
 
+## Delegate
+
+- Use **Explore** subagent to analyze codebase, docs, and recent changes
+  (Context phase)
+
 ## After Discovery
 
 - Technical uncertainty? → Use **researching** skill
-- Direction clear? → Proceed to implementation
+- Direction clear? → Use **planning** skill
+
+Pipeline: **discovering** → researching → planning → implementing → code-review

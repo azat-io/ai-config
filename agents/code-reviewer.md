@@ -64,3 +64,8 @@ Ask one question or proceed with explicit assumptions plus confidence (H/M/L).
 
 - Merge: Block / Needs changes / Approve
 - Top 1–3 required fixes (if any)
+
+## Related
+
+- Command: `/code-review`
+- Skills: **refactoring**, **implementing**

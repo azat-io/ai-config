@@ -131,8 +131,12 @@ Uses the user config directories:
 | [`/code-review`](https://github.com/azat-io/ai-config/blob/main/commands/code-review.md) | Review code quality before merge                          |
 | [`/commit`](https://github.com/azat-io/ai-config/blob/main/commands/commit.md)           | Generate Conventional Commits message from staged changes |
 | [`/discovery`](https://github.com/azat-io/ai-config/blob/main/commands/discovery.md)     | Clarify vague ideas and align on scope                    |
+| [`/docs`](https://github.com/azat-io/ai-config/blob/main/commands/docs.md)               | Write or update project documentation                     |
 | [`/implement`](https://github.com/azat-io/ai-config/blob/main/commands/implement.md)     | Execute an approved implementation plan                   |
+| [`/plan`](https://github.com/azat-io/ai-config/blob/main/commands/plan.md)               | Create a detailed implementation plan before coding       |
+| [`/refactor`](https://github.com/azat-io/ai-config/blob/main/commands/refactor.md)       | Refactor code while preserving behavior                   |
 | [`/research`](https://github.com/azat-io/ai-config/blob/main/commands/research.md)       | Explore technical approaches when requirements are fuzzy  |
+| [`/test`](https://github.com/azat-io/ai-config/blob/main/commands/test.md)               | Write tests for TDD or bug fixes                          |
 
 ### Skills
 

@@ -5,4 +5,6 @@ description:
 disable-model-invocation: true
 ---
 
-Invoke the implementing skill and follow it.
+Use the implementer agent.
+
+If an approved plan is missing, invoke the planning skill first.

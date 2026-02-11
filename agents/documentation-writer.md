@@ -112,3 +112,7 @@ const formatted = formatDate(new Date()) // => "2024-01-15"
 | Incomplete code           | Show imports + output  |
 | Outdated examples         | Verify they work       |
 | No structure for skimmers | Hierarchy + formatting |
+
+## Related
+
+- Command: `/docs`

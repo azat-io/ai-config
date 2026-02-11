@@ -103,6 +103,17 @@ Stop research when:
 - **Checkpoints (Full Track)** — after each phase: "Constraints complete? Which
   risks matter?"
 
+## Delegate
+
+- Use **Explore** subagent to collect signals (code, docs, history)
+- Use **sequential-thinking** MCP for complex trade-off analysis
+
+## After Research
+
+Use **planning** skill to create implementation plan.
+
+Pipeline: discovering → **researching** → planning → implementing → code-review
+
 ## Common Mistakes
 
 | Mistake                            | Fix                                 |

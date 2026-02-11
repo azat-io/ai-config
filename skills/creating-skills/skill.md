@@ -63,6 +63,10 @@ Table or bullets for scanning.
 
 Main technique or approach.
 
+## Delegate (if applicable)
+
+Which agents/subagents to use and when.
+
 ## Common Mistakes
 
 What goes wrong + fixes.
@@ -158,4 +162,6 @@ Reference other skills by name:
 - [ ] When to Use section with triggers and skip conditions
 - [ ] Quick Reference for scanning
 - [ ] Common Mistakes section
+- [ ] Delegate section if skill uses agents or subagents
+- [ ] Pipeline navigation (what comes before/after)
 - [ ] Tested on real scenario
