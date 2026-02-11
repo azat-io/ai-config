@@ -110,9 +110,10 @@ Stop research when:
 
 ## After Research
 
-Use **planning** skill to create implementation plan.
+Use **blueprinting** skill to create implementation blueprint.
 
-Pipeline: discovering → **researching** → planning → implementing → code-review
+Pipeline: discovering → **researching** → blueprinting → implementing →
+code-review
 
 ## Common Mistakes
 

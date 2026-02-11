@@ -1,15 +1,15 @@
 ---
-name: planning
+name: blueprinting
 description:
-  Use when approach is chosen and need detailed implementation plan before
+  Use when approach is chosen and need a detailed implementation plan before
   coding. After researching, before implementer
 ---
 
-# Planning
+# Blueprinting
 
-Write detailed implementation plans with bite-sized tasks. Assume the
-implementer has zero context — document everything needed. Output is a plan, not
-code.
+Write detailed implementation blueprints with bite-sized tasks. Assume the
+implementer has zero context — document everything needed. Output is a
+blueprint, not code.
 
 ## When to Use
 
@@ -37,10 +37,10 @@ researching first).
 4. Verification: checks for each task
 5. Risks: assumptions and unknowns
 
-## Plan Structure
+## Blueprint Structure
 
 ```markdown
-# [Feature Name] Implementation Plan
+# [Feature Name] Implementation Blueprint
 
 **Goal:** One sentence describing what this builds.
 
@@ -125,11 +125,12 @@ Each step is one atomic action:
 ## Delegate
 
 - Use **Explore** subagent to inventory files and entry points
-- Use **test-writer** agent for TDD tasks in plan
+- Use **test-writer** agent for TDD tasks in blueprint
 
-## After Planning
+## After Blueprinting
 
 Hand off to **implementer** agent (or use **implementing** skill for
 step-by-step execution with checkpoints).
 
-Pipeline: discovering → researching → **planning** → implementing → code-review
+Pipeline: discovering → researching → **blueprinting** → implementing →
+code-review

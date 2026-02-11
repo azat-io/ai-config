@@ -128,12 +128,12 @@ Uses the user config directories:
 
 | Command                                                                                  | Description                                               |
 | ---------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| [`/blueprint`](https://github.com/azat-io/ai-config/blob/main/commands/blueprint.md)     | Create a detailed implementation blueprint before coding  |
 | [`/code-review`](https://github.com/azat-io/ai-config/blob/main/commands/code-review.md) | Review code quality before merge                          |
 | [`/commit`](https://github.com/azat-io/ai-config/blob/main/commands/commit.md)           | Generate Conventional Commits message from staged changes |
 | [`/discovery`](https://github.com/azat-io/ai-config/blob/main/commands/discovery.md)     | Clarify vague ideas and align on scope                    |
 | [`/docs`](https://github.com/azat-io/ai-config/blob/main/commands/docs.md)               | Write or update project documentation                     |
-| [`/implement`](https://github.com/azat-io/ai-config/blob/main/commands/implement.md)     | Execute an approved implementation plan                   |
-| [`/plan`](https://github.com/azat-io/ai-config/blob/main/commands/plan.md)               | Create a detailed implementation plan before coding       |
+| [`/implement`](https://github.com/azat-io/ai-config/blob/main/commands/implement.md)     | Execute an approved implementation blueprint              |
 | [`/refactor`](https://github.com/azat-io/ai-config/blob/main/commands/refactor.md)       | Refactor code while preserving behavior                   |
 | [`/research`](https://github.com/azat-io/ai-config/blob/main/commands/research.md)       | Explore technical approaches when requirements are fuzzy  |
 | [`/test`](https://github.com/azat-io/ai-config/blob/main/commands/test.md)               | Write tests for TDD or bug fixes                          |
@@ -142,11 +142,11 @@ Uses the user config directories:
 
 | Skill                                                                                                     | Description                                                     |
 | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| [`blueprinting`](https://github.com/azat-io/ai-config/blob/main/skills/blueprinting/skill.md)             | Write detailed implementation blueprints before coding          |
 | [`creating-skills`](https://github.com/azat-io/ai-config/blob/main/skills/creating-skills/skill.md)       | Create reusable techniques and patterns for AI agents           |
 | [`creating-subagents`](https://github.com/azat-io/ai-config/blob/main/skills/creating-subagents/skill.md) | Create specialized subagents for recurring tasks                |
 | [`discovering`](https://github.com/azat-io/ai-config/blob/main/skills/discovering/skill.md)               | Clarify goals and scope when the what/why is unclear            |
-| [`implementing`](https://github.com/azat-io/ai-config/blob/main/skills/implementing/skill.md)             | Execute an approved implementation plan                         |
-| [`planning`](https://github.com/azat-io/ai-config/blob/main/skills/planning/skill.md)                     | Write detailed implementation plans before coding               |
+| [`implementing`](https://github.com/azat-io/ai-config/blob/main/skills/implementing/skill.md)             | Execute an approved implementation blueprint                    |
 | [`refactoring`](https://github.com/azat-io/ai-config/blob/main/skills/refactoring/skill.md)               | Behavior-preserving restructuring for clarity and safer changes |
 | [`researching`](https://github.com/azat-io/ai-config/blob/main/skills/researching/skill.md)               | Choose technical approaches when the how is unclear             |
 
@@ -163,9 +163,9 @@ Uses the user config directories:
 
 | Server                                                                                                  | Description                                 |
 | ------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| [Fetch](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch)                            | Fetch and process web pages                 |
 | [GitHub](https://github.com/github/github-mcp-server)                                                   | Work with repos, issues, and pull requests  |
 | [Sequential Thinking](https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking) | Step-by-step reasoning for complex problems |
-| [Fetch](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch)                            | Fetch and process web pages                 |
 
 ## See also
 

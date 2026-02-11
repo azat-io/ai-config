@@ -77,6 +77,7 @@ Get sign-off before proceeding.
 ## After Discovery
 
 - Technical uncertainty? → Use **researching** skill
-- Direction clear? → Use **planning** skill
+- Direction clear? → Use **blueprinting** skill
 
-Pipeline: **discovering** → researching → planning → implementing → code-review
+Pipeline: **discovering** → researching → blueprinting → implementing →
+code-review

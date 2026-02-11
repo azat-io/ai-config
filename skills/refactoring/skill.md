@@ -47,7 +47,7 @@ linting.
 
 - Use **test-writer** agent to add characterization tests when no safety net
   exists
-- Use **planning** skill for multi-step refactors that need sequencing
+- Use **blueprinting** skill for multi-step refactors that need sequencing
 - Use **researching** skill when the right approach is unclear
 - Use **code-reviewer** agent to verify after refactoring
 

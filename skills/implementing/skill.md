@@ -1,27 +1,27 @@
 ---
 name: implementing
 description:
-  Use when an approved implementation plan exists and you are about to start
-  implementation
+  Use when an approved implementation blueprint exists and you are about to
+  start implementation
 ---
 
 # Implementing
 
 ## Overview
 
-Execute an existing plan exactly as written, with verification and checkpoints.
-If the plan is wrong or unclear, stop and ask to change it.
+Execute an existing blueprint exactly as written, with verification and
+checkpoints. If the blueprint is wrong or unclear, stop and ask to change it.
 
 ## When to Use
 
-- A plan document exists and is approved
+- An implementation blueprint exists and is approved
 - The work needs disciplined, step-by-step execution
 
-Skip if: there is no plan (write one first) or the task is trivial.
+Skip if: there is no blueprint (write one first) or the task is trivial.
 
 ## Quick Reference
 
-1. Read the full plan.
+1. Read the full blueprint.
 2. Call out blockers or questions.
 3. Track progress per task.
 4. Verify each task before moving on.
@@ -29,13 +29,13 @@ Skip if: there is no plan (write one first) or the task is trivial.
 
 ## Execution Workflow
 
-1. **Load the plan**
+1. **Load the blueprint**
    - Read end to end.
    - Identify unclear steps or missing info.
 
 2. **Confirm before starting**
    - If anything is unclear, ask and wait.
-   - Do not "fix" the plan silently.
+   - Do not "fix" the blueprint silently.
 
 3. **Execute tasks in order**
    - One task at a time.
@@ -51,13 +51,13 @@ Skip if: there is no plan (write one first) or the task is trivial.
    - Wait for approval before continuing.
 
 5. **Finish**
-   - Run any final verification from the plan.
+   - Run any final verification from the blueprint.
    - Report completion and remaining risks.
 
 ## Rules
 
 - Do not add scope or extra features
-- Do not reorder tasks unless the plan says so
+- Do not reorder tasks unless the blueprint says so
 - Stop and ask if blocked or if verification fails
 
 ## Delegate
@@ -66,10 +66,11 @@ Skip if: there is no plan (write one first) or the task is trivial.
 - Use **test-writer** agent if tests are missing
 - Use **code-reviewer** agent after completion
 
-Pipeline: discovering → researching → planning → **implementing** → code-review
+Pipeline: discovering → researching → blueprinting → **implementing** →
+code-review
 
 ## Common Mistakes
 
 - Skipping verification to "save time"
-- Changing the plan without approval
+- Changing the blueprint without approval
 - Executing multiple tasks in parallel without permission

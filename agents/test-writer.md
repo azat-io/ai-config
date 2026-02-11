@@ -85,4 +85,4 @@ Ask one question or proceed with explicit assumptions plus confidence (H/M/L).
 ## Related
 
 - Command: `/test`
-- Skills: **planning**, **implementing**, **refactoring**
+- Skills: **blueprinting**, **implementing**, **refactoring**
