@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.3.0
+
+[compare changes](https://github.com/azat-io/ai-config/compare/v1.2.0...v1.3.0)
+
+### 🚀 Features
+
+- Add skill-reminder hooks
+  ([e47a0ca](https://github.com/azat-io/ai-config/commit/e47a0ca))
+- Add subagent tools support
+  ([4b50f32](https://github.com/azat-io/ai-config/commit/4b50f32))
+
+### ❤️ Contributors
+
+- Azat S. ([@azat-io](https://github.com/azat-io))
+
 ## v1.2.0
 
 [compare changes](https://github.com/azat-io/ai-config/compare/v1.1.0...v1.2.0)
