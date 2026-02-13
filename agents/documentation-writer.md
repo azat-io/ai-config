@@ -3,6 +3,7 @@ name: documentation-writer
 description:
   Documentation writer. Use when need to create or update README, API docs,
   JSDoc, contributing guide, or other documentation
+tools: Read, Glob, Grep, LS, Edit, MultiEdit, Write, Bash
 color: purple
 ---
 

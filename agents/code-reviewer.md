@@ -2,6 +2,7 @@
 name: code-reviewer
 description:
   Code quality reviewer. Use proactively after code changes or before merge
+tools: Read, Glob, Grep, LS, Bash
 color: yellow
 ---
 

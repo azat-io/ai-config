@@ -17,8 +17,12 @@ import type { Support } from '../typings/support'
 import type { Result } from '../typings/result'
 import type { Status } from '../typings/status'
 import type { Scope } from '../typings/scope'
+import type { Tool } from '../typings/tool'
 
+import { extractToolsFromFrontmatter } from '../utils/extract-tools-from-frontmatter'
 import { copyDirectoryContents } from '../utils/copy-directory-contents'
+import { isCanonicalToolName } from '../utils/is-canonical-tool-name'
+import { splitFrontmatter } from '../utils/split-frontmatter'
 import { createResult } from '../utils/create-result'
 import { expandHome } from '../utils/expand-home'
 import { isRecord } from '../utils/is-record'
@@ -43,6 +47,38 @@ let paths = {
   subagents: 'agents',
   skills: 'skill',
 }
+
+let toolMap: Record<Tool, string[]> = {
+  WebSearch: ['websearch'],
+  WebFetch: ['webfetch'],
+  MultiEdit: ['edit'],
+  Write: ['write'],
+  Bash: ['bash'],
+  Edit: ['edit'],
+  Glob: ['glob'],
+  Grep: ['grep'],
+  Read: ['read'],
+  LS: ['list'],
+}
+
+let openCodeBuiltinTools = [
+  'bash',
+  'edit',
+  'glob',
+  'grep',
+  'list',
+  'lsp',
+  'patch',
+  'question',
+  'read',
+  'skill',
+  'todoread',
+  'todowrite',
+  'webfetch',
+  'websearch',
+  'write',
+]
+let openCodeBuiltinToolSet = new Set<string>(openCodeBuiltinTools)
 
 /**
  * Check current OpenCode configuration status.
@@ -470,6 +506,41 @@ async function collectMarkdownFiles(root: string): Promise<string[]> {
 }
 
 /**
+ * Normalize `tools` frontmatter for OpenCode.
+ *
+ * @param content - Markdown content.
+ * @returns Markdown content with OpenCode-compatible tools map.
+ */
+function normalizeSubagentToolsForOpenCode(content: string): string {
+  let { frontmatter, body } = splitFrontmatter(content)
+  if (!frontmatter) {
+    return content
+  }
+
+  let { lines, tools } = extractToolsFromFrontmatter(frontmatter)
+  if (!tools) {
+    return content
+  }
+
+  let enabledTools = mapToolsToOpenCode(tools)
+  lines.push('tools:')
+
+  for (let tool of openCodeBuiltinTools) {
+    lines.push(`  ${tool}: ${enabledTools.has(tool)}`)
+  }
+
+  for (let tool of enabledTools) {
+    if (openCodeBuiltinToolSet.has(tool)) {
+      continue
+    }
+
+    lines.push(`  ${tool}: true`)
+  }
+
+  return ['---', ...lines, '---', body].join('\n')
+}
+
+/**
  * Convert a single subagent Markdown file for OpenCode.
  *
  * @param markdownFile - Markdown file path to convert.
@@ -485,11 +556,36 @@ async function writeSubagentFile(
 
   let content = await readFile(markdownFile, 'utf8')
   let sanitized = stripUnsupportedFrontmatter(content)
+  sanitized = normalizeSubagentToolsForOpenCode(sanitized)
 
   await mkdir(dirname(destinationPath), { recursive: true })
   await writeFile(destinationPath, sanitized, 'utf8')
 
   return destinationPath
+}
+
+/**
+ * Convert canonical Claude-style tool names to OpenCode tool names.
+ *
+ * @param tools - Tool names from source frontmatter.
+ * @returns Enabled OpenCode tool set.
+ */
+function mapToolsToOpenCode(tools: string[]): Set<string> {
+  let enabledTools = new Set<string>()
+
+  for (let tool of tools) {
+    if (!tool || /^Task(?:\(|$)/u.test(tool)) {
+      continue
+    }
+
+    let mappedTools =
+      isCanonicalToolName(tool, toolMap) ? toolMap[tool] : [tool]
+    for (let mappedTool of mappedTools) {
+      enabledTools.add(mappedTool)
+    }
+  }
+
+  return enabledTools
 }
 
 /**

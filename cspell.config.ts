@@ -6,8 +6,12 @@ export default defineConfig({
     'changelogithub',
     'modelcontextprotocol',
     'opencode',
+    'todoread',
+    'todowrite',
     'toolsets',
     'underspecified',
+    'webfetch',
+    'websearch',
   ],
   ignorePaths: [
     '.github',

@@ -9,12 +9,16 @@ import type { Support } from '../typings/support'
 import type { Result } from '../typings/result'
 import type { Status } from '../typings/status'
 import type { Scope } from '../typings/scope'
+import type { Tool } from '../typings/tool'
 
 import { createMcpSettingsMergeWithHook } from '../utils/create-mcp-settings-merge-with-hook'
+import { extractToolsFromFrontmatter } from '../utils/extract-tools-from-frontmatter'
 import { ensureExecutableShellHooks } from '../utils/ensure-executable-shell-hooks'
 import { mergeMcpSettingsWithHook } from '../utils/merge-mcp-settings-with-hook'
 import { copyDirectoryContents } from '../utils/copy-directory-contents'
+import { isCanonicalToolName } from '../utils/is-canonical-tool-name'
 import { resolveHookCommand } from '../utils/resolve-hook-command'
+import { splitFrontmatter } from '../utils/split-frontmatter'
 import { createResult } from '../utils/create-result'
 import { expandHome } from '../utils/expand-home'
 
@@ -43,6 +47,19 @@ let paths = {
   subagents: 'agents',
   skills: 'skills',
   hooks: 'hooks',
+}
+
+let toolMap: Record<Tool, string[]> = {
+  Read: ['read_file', 'read_many_files'],
+  WebSearch: ['google_web_search'],
+  Bash: ['run_shell_command'],
+  WebFetch: ['web_fetch'],
+  LS: ['list_directory'],
+  MultiEdit: ['replace'],
+  Grep: ['grep_search'],
+  Write: ['write_file'],
+  Edit: ['replace'],
+  Glob: ['glob'],
 }
 
 /**
@@ -397,39 +414,6 @@ async function writeCommandFile(
 }
 
 /**
- * Split Markdown into frontmatter and body.
- *
- * @param content - Markdown content.
- * @returns Extracted frontmatter and body.
- */
-function splitFrontmatter(content: string): {
-  frontmatter?: string
-  body: string
-} {
-  let lines = content.split(/\r?\n/u)
-  if (lines[0] !== '---') {
-    return { body: content }
-  }
-
-  let endIndex = -1
-  for (let index = 1; index < lines.length; index += 1) {
-    if (lines[index] === '---') {
-      endIndex = index
-      break
-    }
-  }
-
-  if (endIndex === -1) {
-    return { body: content }
-  }
-
-  return {
-    frontmatter: lines.slice(1, endIndex).join('\n'),
-    body: lines.slice(endIndex + 1).join('\n'),
-  }
-}
-
-/**
  * Convert a single subagent Markdown file for Gemini CLI.
  *
  * @param markdownFile - Markdown file path to convert.
@@ -445,11 +429,70 @@ async function writeSubagentFile(
 
   let content = await readFile(markdownFile, 'utf8')
   let sanitized = stripUnsupportedFrontmatter(content)
+  sanitized = normalizeSubagentToolsForGemini(sanitized)
 
   await mkdir(dirname(destinationPath), { recursive: true })
   await writeFile(destinationPath, sanitized, 'utf8')
 
   return destinationPath
+}
+
+/**
+ * Convert canonical Claude-style tool names to Gemini CLI tool names.
+ *
+ * @param tools - Tool names from source frontmatter.
+ * @returns Gemini-compatible tool list.
+ */
+function mapToolsToGemini(tools: string[]): string[] {
+  let normalizedTools: string[] = []
+  let seen = new Set<string>()
+
+  for (let tool of tools) {
+    if (!tool || /^Task(?:\(|$)/u.test(tool)) {
+      continue
+    }
+
+    let mappedTools =
+      isCanonicalToolName(tool, toolMap) ? toolMap[tool] : [tool]
+    for (let mappedTool of mappedTools) {
+      if (seen.has(mappedTool)) {
+        continue
+      }
+
+      seen.add(mappedTool)
+      normalizedTools.push(mappedTool)
+    }
+  }
+
+  return normalizedTools
+}
+
+/**
+ * Normalize `tools` frontmatter for Gemini CLI.
+ *
+ * @param content - Markdown content.
+ * @returns Markdown content with Gemini-compatible tools list.
+ */
+function normalizeSubagentToolsForGemini(content: string): string {
+  let { frontmatter, body } = splitFrontmatter(content)
+  if (!frontmatter) {
+    return content
+  }
+
+  let { lines, tools } = extractToolsFromFrontmatter(frontmatter)
+  if (!tools) {
+    return content
+  }
+
+  let geminiTools = mapToolsToGemini(tools)
+  if (geminiTools.length > 0) {
+    lines.push('tools:')
+    for (let tool of geminiTools) {
+      lines.push(`  - ${tool}`)
+    }
+  }
+
+  return ['---', ...lines, '---', body].join('\n')
 }
 
 /**

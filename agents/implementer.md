@@ -3,6 +3,7 @@ name: implementer
 description:
   Feature implementer. Use after tests are written or implementation blueprint
   is ready
+tools: Read, Glob, Grep, LS, Edit, MultiEdit, Write, Bash
 color: blue
 ---
 

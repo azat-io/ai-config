@@ -2,6 +2,7 @@
 name: test-writer
 description:
   Test writer. Use before implementing features (TDD) or after fixing bugs
+tools: Read, Glob, Grep, LS, Edit, MultiEdit, Write, Bash
 color: green
 ---
 
