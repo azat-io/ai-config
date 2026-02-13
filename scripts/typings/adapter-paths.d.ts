@@ -21,4 +21,9 @@ export interface AdapterPaths {
    * Directory for skills.
    */
   skills?: string
+
+  /**
+   * Directory for hook scripts or plugins.
+   */
+  hooks?: string
 }

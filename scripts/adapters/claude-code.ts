@@ -1,14 +1,21 @@
-import { readFile, readdir } from 'node:fs/promises'
+import { writeFile, readFile, readdir } from 'node:fs/promises'
+import { dirname, join } from 'node:path'
 import { homedir } from 'node:os'
-import { join } from 'node:path'
 
+import type { AdapterInstallContext } from '../typings/adapter-install-context'
 import type { ScopedConfig } from '../typings/scoped-config'
-import type { McpServer } from '../typings/mcp-server'
 import type { Adapter } from '../typings/adapter'
 import type { Support } from '../typings/support'
+import type { Result } from '../typings/result'
 import type { Status } from '../typings/status'
 import type { Scope } from '../typings/scope'
 
+import { createMcpSettingsMergeWithHook } from '../utils/create-mcp-settings-merge-with-hook'
+import { ensureExecutableShellHooks } from '../utils/ensure-executable-shell-hooks'
+import { mergeMcpSettingsWithHook } from '../utils/merge-mcp-settings-with-hook'
+import { copyDirectoryContents } from '../utils/copy-directory-contents'
+import { resolveHookCommand } from '../utils/resolve-hook-command'
+import { createResult } from '../utils/create-result'
 import { expandHome } from '../utils/expand-home'
 
 let id = 'claude-code' as const
@@ -16,12 +23,18 @@ let name = 'Claude Code' as const
 let color = 'yellow' as const
 
 let configPath = join(homedir(), '.claude')
+let hookCommandOptions = {
+  localCommand: '"$CLAUDE_PROJECT_DIR"/.claude/hooks/skill-reminder.sh',
+  globalCommand: '~/.claude/hooks/skill-reminder.sh',
+  localHooksDirectory: 'hooks',
+}
 
 let supports: Support = {
   instructions: true,
   subagents: true,
   commands: true,
   skills: true,
+  hooks: true,
   mcp: true,
 }
 
@@ -30,6 +43,7 @@ let paths = {
   commands: 'commands',
   subagents: 'agents',
   skills: 'skills',
+  hooks: 'hooks',
 }
 
 /**
@@ -46,6 +60,7 @@ async function check(): Promise<Status> {
       subagents: [],
       commands: [],
       skills: [],
+      hooks: [],
       mcp: [],
     },
     configPath: basePath,
@@ -68,6 +83,12 @@ async function check(): Promise<Status> {
     let skillsPath = join(basePath, 'skills')
     let skillDirectories = await readdir(skillsPath).catch(() => [])
     status.components.skills = skillDirectories
+
+    let hooksPath = join(basePath, 'hooks')
+    let hookFiles = await readdir(hooksPath).catch(() => [])
+    status.components.hooks = hookFiles
+      .filter(file => file.endsWith('.sh'))
+      .map(file => file.replace('.sh', ''))
 
     let settingsPath = join(basePath, 'settings.json')
     let settingsContent = await readFile(settingsPath, 'utf8').catch(() => '{}')
@@ -95,28 +116,39 @@ async function check(): Promise<Status> {
 }
 
 /**
- * Merge MCP servers into Claude settings.json content.
+ * Install Claude hooks and ensure hook configuration exists in settings.json.
  *
- * @param content - Existing settings.json content.
- * @param servers - MCP servers to merge.
- * @returns Updated settings.json content.
+ * @param context - Installation context.
+ * @returns Result with list of created/modified files.
  */
-function mergeMcpSettings(
-  content: string,
-  servers: Record<string, McpServer>,
-): string {
-  let settings: Record<string, unknown> = {}
+async function installHooks(context: AdapterInstallContext): Promise<Result> {
+  let result = createResult()
+  result.files = await copyDirectoryContents(
+    context.sourcePath,
+    context.destinationPath,
+  )
+  await ensureExecutableShellHooks(context.destinationPath)
 
-  if (content.trim()) {
-    settings = JSON.parse(content) as Record<string, unknown>
-  }
+  let settingsPath = join(dirname(context.destinationPath), 'settings.json')
+  let settingsContent = await readFile(settingsPath, 'utf8').catch(() => '')
+  let merged = mergeMcpSettingsWithHook(
+    settingsContent,
+    {},
+    {
+      command: resolveHookCommand(
+        context.destinationPath,
+        context.basePath,
+        hookCommandOptions,
+      ),
+      eventName: 'UserPromptSubmit',
+      timeout: 5,
+    },
+  )
 
-  settings['mcpServers'] = {
-    ...(settings['mcpServers'] as Record<string, unknown> | undefined),
-    ...servers,
-  }
+  await writeFile(settingsPath, merged, 'utf8')
+  result.files.push(settingsPath)
 
-  return `${JSON.stringify(settings, null, 2)}\n`
+  return result
 }
 
 /**
@@ -132,8 +164,19 @@ function getAbsoluteConfigPath(): string {
  * MCP configuration handling for Claude Code adapter.
  */
 let mcp = {
+  merge: createMcpSettingsMergeWithHook({
+    command: hookCommandOptions.globalCommand,
+    eventName: 'UserPromptSubmit',
+    timeout: 5,
+  }),
   fileName: 'settings.json',
-  merge: mergeMcpSettings,
+}
+
+/**
+ * Adapter installers for Claude Code.
+ */
+let installers = {
+  hooks: installHooks,
 }
 
 /**
@@ -153,15 +196,20 @@ function getConfig(scope: Scope, rootPath: string): ScopedConfig {
   }
 
   return {
+    mcp: {
+      merge: createMcpSettingsMergeWithHook({
+        command: hookCommandOptions.localCommand,
+        eventName: 'UserPromptSubmit',
+        timeout: 5,
+      }),
+      fileName: '.claude/settings.json',
+    },
     paths: {
       commands: '.claude/commands',
       subagents: '.claude/agents',
       instructions: 'CLAUDE.md',
       skills: '.claude/skills',
-    },
-    mcp: {
-      fileName: '.claude/settings.json',
-      merge: mergeMcpSettings,
+      hooks: '.claude/hooks',
     },
     configPath: rootPath,
   }
@@ -179,6 +227,7 @@ function getConfig(scope: Scope, rootPath: string): ScopedConfig {
  * - `settings.json` - MCP servers (merged with existing).
  */
 export let claudeCodeAdapter: Adapter = {
+  installers,
   configPath,
   getConfig,
   supports,

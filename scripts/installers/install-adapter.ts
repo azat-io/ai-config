@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 import type { AdapterInstallContext } from '../typings/adapter-install-context'
@@ -168,6 +169,27 @@ export async function installAdapter(
         : await installDirectory(context.sourcePath, context.destinationPath)
       results.push(stepResult)
       logResult(step, stepResult)
+    }
+
+    if (adapter.supports.hooks && adapter.paths.hooks && sources.hooksPath) {
+      let sourcePath = join(sources.hooksPath, adapter.id)
+
+      if (existsSync(sourcePath)) {
+        let step = 'Hooks'
+        logStart(step)
+        let context: AdapterInstallContext = {
+          destinationPath: join(basePath, adapter.paths.hooks),
+          sourcePath,
+          basePath,
+          sources,
+        }
+        let stepResult =
+          installers?.hooks ?
+            await installers.hooks(context)
+          : await installDirectory(context.sourcePath, context.destinationPath)
+        results.push(stepResult)
+        logResult(step, stepResult)
+      }
     }
 
     if (

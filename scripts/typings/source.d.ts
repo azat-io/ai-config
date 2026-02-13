@@ -28,4 +28,9 @@ export interface Source {
    * Directory containing ready-to-copy skill definitions.
    */
   skillsPath?: string
+
+  /**
+   * Directory containing agent-specific hook assets.
+   */
+  hooksPath?: string
 }

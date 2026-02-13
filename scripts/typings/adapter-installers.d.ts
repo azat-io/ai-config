@@ -24,4 +24,9 @@ export interface AdapterInstallers {
    * Install skills.
    */
   skills?(context: AdapterInstallContext): Promise<Result>
+
+  /**
+   * Install hooks.
+   */
+  hooks?(context: AdapterInstallContext): Promise<Result>
 }

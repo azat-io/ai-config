@@ -69,6 +69,7 @@ Sources live in this repo and are copied into each agent's config:
 - `commands/`
 - `agents/`
 - `skills/`
+- `hooks/`
 - `settings/mcp.ts` (GitHub, sequential-thinking, fetch)
 
 ## Install Scope
@@ -81,7 +82,7 @@ Creates dot-folders in the current project and places instructions in the
 project root:
 
 - Claude Code
-  - `.claude/commands/`, `.claude/agents/`, `.claude/skills/`
+  - `.claude/commands/`, `.claude/agents/`, `.claude/skills/`, `.claude/hooks/`
   - `.claude/settings.json` (MCP)
   - `CLAUDE.md`
 - Codex
@@ -89,7 +90,7 @@ project root:
   - `.codex/config.toml` (MCP)
   - `AGENTS.md`
 - Gemini CLI
-  - `.gemini/commands/`, `.gemini/agents/`, `.gemini/skills/`
+  - `.gemini/commands/`, `.gemini/agents/`, `.gemini/skills/`, `.gemini/hooks/`
   - `.gemini/settings.json` (MCP)
   - `GEMINI.md`
 - OpenCode
@@ -115,12 +116,12 @@ Uses the user config directories:
 
 ## Supported Features
 
-| Agent       | Instructions | Commands | Skills | Subagents | MCP |
-| ----------- | ------------ | -------- | ------ | --------- | --- |
-| Claude Code | Yes          | Yes      | Yes    | Yes       | Yes |
-| Codex       | Yes          | No       | Yes    | No        | Yes |
-| Gemini CLI  | Yes          | Yes      | Yes    | Yes       | Yes |
-| OpenCode    | Yes          | Yes      | Yes    | Yes       | Yes |
+| Agent       | Instructions | Commands | Skills | Subagents | Hooks | MCP |
+| ----------- | ------------ | -------- | ------ | --------- | ----- | --- |
+| Claude Code | Yes          | Yes      | Yes    | Yes       | Yes   | Yes |
+| Codex       | Yes          | No       | Yes    | No        | No    | Yes |
+| Gemini CLI  | Yes          | Yes      | Yes    | Yes       | Yes   | Yes |
+| OpenCode    | Yes          | Yes      | Yes    | Yes       | No    | Yes |
 
 ## Built-in Features
 

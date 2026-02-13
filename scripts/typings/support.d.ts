@@ -23,6 +23,11 @@ export interface Support {
   skills: boolean
 
   /**
+   * Whether the agent supports lifecycle hooks.
+   */
+  hooks: boolean
+
+  /**
    * Whether the agent supports MCP (Model Context Protocol) servers.
    */
   mcp: boolean

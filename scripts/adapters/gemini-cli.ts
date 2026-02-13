@@ -4,13 +4,17 @@ import { homedir } from 'node:os'
 
 import type { AdapterInstallContext } from '../typings/adapter-install-context'
 import type { ScopedConfig } from '../typings/scoped-config'
-import type { McpServer } from '../typings/mcp-server'
 import type { Adapter } from '../typings/adapter'
 import type { Support } from '../typings/support'
 import type { Result } from '../typings/result'
 import type { Status } from '../typings/status'
 import type { Scope } from '../typings/scope'
 
+import { createMcpSettingsMergeWithHook } from '../utils/create-mcp-settings-merge-with-hook'
+import { ensureExecutableShellHooks } from '../utils/ensure-executable-shell-hooks'
+import { mergeMcpSettingsWithHook } from '../utils/merge-mcp-settings-with-hook'
+import { copyDirectoryContents } from '../utils/copy-directory-contents'
+import { resolveHookCommand } from '../utils/resolve-hook-command'
 import { createResult } from '../utils/create-result'
 import { expandHome } from '../utils/expand-home'
 
@@ -18,12 +22,18 @@ let id = 'gemini-cli' as const
 let name = 'Gemini CLI' as const
 let color = 'blue' as const
 let configPath = join(homedir(), '.gemini')
+let hookCommandOptions = {
+  localCommand: '"$GEMINI_PROJECT_DIR"/.gemini/hooks/skill-reminder.sh',
+  globalCommand: '~/.gemini/hooks/skill-reminder.sh',
+  localHooksDirectory: 'hooks',
+}
 
 let supports: Support = {
   instructions: true,
   subagents: true,
   commands: true,
   skills: true,
+  hooks: true,
   mcp: true,
 }
 
@@ -32,6 +42,7 @@ let paths = {
   commands: 'commands',
   subagents: 'agents',
   skills: 'skills',
+  hooks: 'hooks',
 }
 
 /**
@@ -48,6 +59,7 @@ async function check(): Promise<Status> {
       subagents: [],
       commands: [],
       skills: [],
+      hooks: [],
       mcp: [],
     },
     configPath: basePath,
@@ -70,6 +82,12 @@ async function check(): Promise<Status> {
     let skillsPath = join(basePath, 'skills')
     let skillDirectories = await readdir(skillsPath).catch(() => [])
     status.components.skills = skillDirectories
+
+    let hooksPath = join(basePath, 'hooks')
+    let hookFiles = await readdir(hooksPath).catch(() => [])
+    status.components.hooks = hookFiles
+      .filter(file => file.endsWith('.sh'))
+      .map(file => file.replace('.sh', ''))
 
     let settingsPath = join(basePath, 'settings.json')
     let settingsContent = await readFile(settingsPath, 'utf8').catch(() => '{}')
@@ -217,6 +235,43 @@ function parseFrontmatter(frontmatter: string): Record<string, string> {
 }
 
 /**
+ * Install Gemini hooks and ensure hook configuration exists in settings.json.
+ *
+ * @param context - Installation context.
+ * @returns Result with list of created/modified files.
+ */
+async function installHooks(context: AdapterInstallContext): Promise<Result> {
+  let result = createResult()
+  result.files = await copyDirectoryContents(
+    context.sourcePath,
+    context.destinationPath,
+  )
+  await ensureExecutableShellHooks(context.destinationPath)
+
+  let settingsPath = join(dirname(context.destinationPath), 'settings.json')
+  let settingsContent = await readFile(settingsPath, 'utf8').catch(() => '')
+  let merged = mergeMcpSettingsWithHook(
+    settingsContent,
+    {},
+    {
+      command: resolveHookCommand(
+        context.destinationPath,
+        context.basePath,
+        hookCommandOptions,
+      ),
+      apply: applyGeminiDefaults,
+      eventName: 'BeforeAgent',
+      timeout: 5000,
+    },
+  )
+
+  await writeFile(settingsPath, merged, 'utf8')
+  result.files.push(settingsPath)
+
+  return result
+}
+
+/**
  * Install Gemini CLI subagents while removing unsupported frontmatter fields.
  *
  * @param context - Installation context.
@@ -342,38 +397,6 @@ async function writeCommandFile(
 }
 
 /**
- * Merge MCP servers into Gemini CLI settings.json content.
- *
- * @param content - Existing settings.json content.
- * @param servers - MCP servers to merge.
- * @returns Updated settings.json content.
- */
-function mergeMcpSettings(
-  content: string,
-  servers: Record<string, McpServer>,
-): string {
-  let settings: Record<string, unknown> = {}
-
-  if (content.trim()) {
-    settings = JSON.parse(content) as Record<string, unknown>
-  }
-
-  settings['mcpServers'] = {
-    ...(settings['mcpServers'] as Record<string, unknown> | undefined),
-    ...servers,
-  }
-
-  let experimental =
-    isRecord(settings['experimental']) ? settings['experimental'] : {}
-  settings['experimental'] = {
-    ...experimental,
-    enableAgents: true,
-  }
-
-  return `${JSON.stringify(settings, null, 2)}\n`
-}
-
-/**
  * Split Markdown into frontmatter and body.
  *
  * @param content - Markdown content.
@@ -452,6 +475,25 @@ function extractPromptDetails(content: string): {
 }
 
 /**
+ * Apply Gemini-specific default settings.
+ *
+ * @param settings - Parsed settings object.
+ */
+function applyGeminiDefaults(settings: Record<string, unknown>): void {
+  let experimental =
+    (
+      typeof settings['experimental'] === 'object' &&
+      settings['experimental'] !== null
+    ) ?
+      (settings['experimental'] as Record<string, unknown>)
+    : {}
+  settings['experimental'] = {
+    ...experimental,
+    enableAgents: true,
+  }
+}
+
+/**
  * Render a Gemini CLI command TOML document.
  *
  * @param details - Command metadata.
@@ -520,16 +562,6 @@ function stripUnsupportedFrontmatter(content: string): string {
 }
 
 /**
- * Check whether a value is a plain object.
- *
- * @param value - Value to check.
- * @returns True when the value is a non-null object.
- */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
-}
-
-/**
  * Resolve the absolute Gemini CLI config path.
  *
  * @returns Full filesystem path to the configuration directory.
@@ -542,8 +574,13 @@ function getAbsoluteConfigPath(): string {
  * MCP configuration for Gemini CLI.
  */
 let mcp = {
+  merge: createMcpSettingsMergeWithHook({
+    command: hookCommandOptions.globalCommand,
+    apply: applyGeminiDefaults,
+    eventName: 'BeforeAgent',
+    timeout: 5000,
+  }),
   fileName: 'settings.json',
-  merge: mergeMcpSettings,
 }
 
 /**
@@ -552,6 +589,7 @@ let mcp = {
 let installers = {
   subagents: installSubagents,
   commands: installCommands,
+  hooks: installHooks,
 }
 
 /**
@@ -571,15 +609,21 @@ function getConfig(scope: Scope, rootPath: string): ScopedConfig {
   }
 
   return {
+    mcp: {
+      merge: createMcpSettingsMergeWithHook({
+        command: hookCommandOptions.localCommand,
+        apply: applyGeminiDefaults,
+        eventName: 'BeforeAgent',
+        timeout: 5000,
+      }),
+      fileName: '.gemini/settings.json',
+    },
     paths: {
       commands: '.gemini/commands',
       subagents: '.gemini/agents',
       instructions: 'GEMINI.md',
       skills: '.gemini/skills',
-    },
-    mcp: {
-      fileName: '.gemini/settings.json',
-      merge: mergeMcpSettings,
+      hooks: '.gemini/hooks',
     },
     configPath: rootPath,
   }

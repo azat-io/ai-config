@@ -25,6 +25,7 @@ let supports: Support = {
   subagents: false,
   commands: false,
   skills: true,
+  hooks: false,
   mcp: true,
 }
 
@@ -47,6 +48,7 @@ async function check(): Promise<Status> {
       subagents: [],
       commands: [],
       skills: [],
+      hooks: [],
       mcp: [],
     },
     configPath: basePath,

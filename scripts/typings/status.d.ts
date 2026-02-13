@@ -27,6 +27,11 @@ export interface Status {
     skills: string[]
 
     /**
+     * Names of installed hooks.
+     */
+    hooks: string[]
+
+    /**
      * Names of configured MCP servers.
      */
     mcp: string[]

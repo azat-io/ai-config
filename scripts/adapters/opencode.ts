@@ -21,6 +21,7 @@ import type { Scope } from '../typings/scope'
 import { copyDirectoryContents } from '../utils/copy-directory-contents'
 import { createResult } from '../utils/create-result'
 import { expandHome } from '../utils/expand-home'
+import { isRecord } from '../utils/is-record'
 
 let id = 'opencode' as const
 let name = 'OpenCode' as const
@@ -32,6 +33,7 @@ let supports: Support = {
   subagents: true,
   commands: true,
   skills: true,
+  hooks: false,
   mcp: true,
 }
 
@@ -56,6 +58,7 @@ async function check(): Promise<Status> {
       subagents: [],
       commands: [],
       skills: [],
+      hooks: [],
       mcp: [],
     },
     configPath: basePath,
@@ -592,16 +595,6 @@ function parseJsonc(content: string): Record<string, unknown> {
  */
 function stripUnsupportedFrontmatter(content: string): string {
   return stripFrontmatterKeys(content, new Set(['color']))
-}
-
-/**
- * Check whether a value is a plain object.
- *
- * @param value - Value to check.
- * @returns True when the value is a non-null object.
- */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
 }
 
 /**

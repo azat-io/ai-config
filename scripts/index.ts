@@ -118,6 +118,7 @@ export async function run(): Promise<void> {
     commandsPath: resolveIfExists('commands'),
     subagentsPath: resolveIfExists('agents'),
     skillsPath: resolveIfExists('skills'),
+    hooksPath: resolveIfExists('hooks'),
     mcp: mcpConfig,
   }
 

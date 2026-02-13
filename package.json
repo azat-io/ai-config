@@ -29,6 +29,7 @@
     "./bin",
     "./commands",
     "./dist",
+    "./hooks",
     "./instructions",
     "./skills"
   ],
