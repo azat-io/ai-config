@@ -1,1 +1,2 @@
 bin/ai-config.js linguist-vendored
+*.md linguist-detectable
