@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.4.0
+
+[compare changes](https://github.com/azat-io/ai-config/compare/v1.3.0...v1.4.0)
+
+### 🚀 Features
+
+- Support codex subagents
+  ([dc6d989](https://github.com/azat-io/ai-config/commit/dc6d989))
+
+### ❤️ Contributors
+
+- Azat S. ([@azat-io](https://github.com/azat-io))
+
 ## v1.3.0
 
 [compare changes](https://github.com/azat-io/ai-config/compare/v1.2.0...v1.3.0)
