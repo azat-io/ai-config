@@ -86,6 +86,7 @@ project root:
   - `.claude/settings.json` (MCP)
   - `CLAUDE.md`
 - Codex
+  - `.codex/agents/*.toml` (multi-agent role configs)
   - `.codex/skills/`
   - `.codex/config.toml` (MCP)
   - `AGENTS.md`
@@ -119,9 +120,13 @@ Uses the user config directories:
 | Agent       | Instructions | Commands | Skills | Subagents | Hooks | MCP |
 | ----------- | ------------ | -------- | ------ | --------- | ----- | --- |
 | Claude Code | Yes          | Yes      | Yes    | Yes       | Yes   | Yes |
-| Codex       | Yes          | No       | Yes    | No        | No    | Yes |
+| Codex       | Yes          | No       | Yes    | Yes       | No    | Yes |
 | Gemini CLI  | Yes          | Yes      | Yes    | Yes       | Yes   | Yes |
 | OpenCode    | Yes          | Yes      | Yes    | Yes       | No    | Yes |
+
+Codex subagents use the experimental multi-agent feature. The installer enables
+`[features] multi_agent = true` in `.codex/config.toml`; restart Codex after
+installation for the change to take effect.
 
 ## Built-in Features
 

@@ -1,6 +1,6 @@
-import { readFile, readdir, rename } from 'node:fs/promises'
+import { writeFile, readFile, readdir, rename, mkdir } from 'node:fs/promises'
+import { relative, dirname, join } from 'node:path'
 import { homedir } from 'node:os'
-import { join } from 'node:path'
 
 import type { AdapterInstallContext } from '../typings/adapter-install-context'
 import type { ScopedConfig } from '../typings/scoped-config'
@@ -12,6 +12,7 @@ import type { Status } from '../typings/status'
 import type { Scope } from '../typings/scope'
 
 import { copyDirectoryContents } from '../utils/copy-directory-contents'
+import { splitFrontmatter } from '../utils/split-frontmatter'
 import { createResult } from '../utils/create-result'
 import { expandHome } from '../utils/expand-home'
 
@@ -22,7 +23,7 @@ let configPath = join(homedir(), '.codex')
 
 let supports: Support = {
   instructions: true,
-  subagents: false,
+  subagents: true,
   commands: false,
   skills: true,
   hooks: false,
@@ -31,7 +32,195 @@ let supports: Support = {
 
 let paths = {
   instructions: 'AGENTS.md',
+  subagents: 'agents',
   skills: 'skills',
+}
+
+interface CodexSubagentRole {
+  description?: string
+  configFile: string
+  name: string
+}
+
+interface CodexSubagentWriteResult {
+  destinationPath: string
+  role: CodexSubagentRole
+}
+
+/**
+ * Install Codex subagents by converting shared Markdown agents into Codex role
+ * configs and registering them in `config.toml`.
+ *
+ * @param context - Installation context.
+ * @returns Result with list of created files.
+ */
+async function installSubagents(
+  context: AdapterInstallContext,
+): Promise<Result> {
+  let result = createResult()
+  let markdownFiles = await collectMarkdownFiles(context.sourcePath)
+
+  let writeResults = await Promise.allSettled(
+    markdownFiles.map(markdownFile => writeSubagentFile(markdownFile, context)),
+  )
+
+  let roles: CodexSubagentRole[] = []
+  let seenRoleNames = new Set<string>()
+
+  for (let writeResult of writeResults) {
+    if (writeResult.status === 'fulfilled') {
+      result.files.push(writeResult.value.destinationPath)
+
+      let { role } = writeResult.value
+      if (seenRoleNames.has(role.name)) {
+        result.success = false
+        result.errors?.push(`Duplicate Codex subagent role name: ${role.name}`)
+        continue
+      }
+
+      seenRoleNames.add(role.name)
+      roles.push(role)
+      continue
+    }
+
+    result.success = false
+    result.errors?.push(
+      writeResult.reason instanceof Error ?
+        writeResult.reason.message
+      : String(writeResult.reason),
+    )
+  }
+
+  if (roles.length === 0) {
+    return result
+  }
+
+  let configDirectory = dirname(context.destinationPath)
+  let configFilePath = join(configDirectory, 'config.toml')
+  let configContent = await readFile(configFilePath, 'utf8').catch(() => '')
+  let updatedConfig = mergeCodexSubagentConfig(configContent, roles)
+
+  await mkdir(configDirectory, { recursive: true })
+  await writeFile(configFilePath, updatedConfig, 'utf8')
+  result.files.push(configFilePath)
+
+  return result
+}
+
+/**
+ * Enable Codex experimental multi-agent support in `[features]`.
+ *
+ * @param content - Existing config.toml content.
+ * @returns Updated config.toml content.
+ */
+function ensureMultiAgentFeatureFlag(content: string): string {
+  let lines = content ? content.split(/\r?\n/u) : []
+  let headerMatcher = /^\[(?<section>[^\]]+)\]\s*$/u
+
+  let output: string[] = []
+  let inFeatures = false
+  let hasFeatures = false
+  let hasMultiAgent = false
+
+  for (let line of lines) {
+    let headerMatch = line.match(headerMatcher)
+    if (headerMatch) {
+      if (inFeatures && !hasMultiAgent) {
+        output.push('multi_agent = true')
+        hasMultiAgent = true
+      }
+
+      let section = headerMatch.groups?.['section']
+      inFeatures = section === 'features'
+      if (inFeatures) {
+        hasFeatures = true
+      }
+
+      output.push(line)
+      continue
+    }
+
+    if (inFeatures && /^\s*multi_agent\s*=/u.test(line)) {
+      if (!hasMultiAgent) {
+        output.push('multi_agent = true')
+        hasMultiAgent = true
+      }
+      continue
+    }
+
+    output.push(line)
+  }
+
+  if (inFeatures && !hasMultiAgent) {
+    output.push('multi_agent = true')
+  }
+
+  if (!hasFeatures) {
+    return appendTomlBlock(
+      output
+        .join('\n')
+        .replaceAll(/\n{3,}/gu, '\n\n')
+        .trimEnd(),
+      ['[features]', 'multi_agent = true'].join('\n'),
+    )
+  }
+
+  return output
+    .join('\n')
+    .replaceAll(/\n{3,}/gu, '\n\n')
+    .trimEnd()
+}
+
+/**
+ * Convert a shared Markdown subagent to a Codex role config file.
+ *
+ * @param markdownFile - Source Markdown file path.
+ * @param context - Installation context.
+ * @returns Generated file path and role registration details.
+ */
+async function writeSubagentFile(
+  markdownFile: string,
+  context: AdapterInstallContext,
+): Promise<CodexSubagentWriteResult> {
+  let relativePath = relative(context.sourcePath, markdownFile)
+  let destinationPath = join(
+    context.destinationPath,
+    replaceExtension(relativePath, '.toml'),
+  )
+
+  let content = await readFile(markdownFile, 'utf8')
+  let { frontmatter, body } = splitFrontmatter(content)
+  let attributes = frontmatter ? parseFrontmatter(frontmatter) : {}
+
+  let roleName = normalizeCodexRoleName(attributes['name'] ?? relativePath)
+  let developerInstructions = body.replace(/^\r?\n/u, '').trim()
+  if (!developerInstructions) {
+    throw new Error(`Codex subagent "${relativePath}" has empty instructions`)
+  }
+
+  await mkdir(dirname(destinationPath), { recursive: true })
+  await writeFile(
+    destinationPath,
+    renderCodexRoleConfig({ developerInstructions }),
+    'utf8',
+  )
+
+  let configDirectory = dirname(context.destinationPath)
+  let configFileRelativePath = relative(
+    configDirectory,
+    destinationPath,
+  ).replaceAll('\\', '/')
+
+  let description = attributes['description']?.trim()
+
+  return {
+    role: {
+      configFile: configFileRelativePath,
+      name: roleName,
+      description,
+    },
+    destinationPath,
+  }
 }
 
 /**
@@ -56,6 +245,12 @@ async function check(): Promise<Status> {
   }
 
   try {
+    let agentsPath = join(basePath, 'agents')
+    let agentFiles = await readdir(agentsPath).catch(() => [])
+    status.components.subagents = agentFiles
+      .filter(file => file.endsWith('.toml'))
+      .map(file => file.replace('.toml', ''))
+
     let skillsPath = join(basePath, 'skills')
     let skillDirectories = await readdir(skillsPath).catch(() => [])
     status.components.skills = skillDirectories
@@ -78,6 +273,61 @@ async function check(): Promise<Status> {
   }
 
   return status
+}
+
+/**
+ * Parse a subset of YAML frontmatter for simple key/value pairs.
+ *
+ * @param frontmatter - Frontmatter content.
+ * @returns Parsed key/value map.
+ */
+function parseFrontmatter(frontmatter: string): Record<string, string> {
+  let attributes: Record<string, string> = {}
+  let lines = frontmatter.split(/\r?\n/u)
+
+  for (let index = 0; index < lines.length; index += 1) {
+    let line = lines[index]
+    if (line === undefined) {
+      continue
+    }
+
+    let separatorIndex = line.indexOf(':')
+    if (separatorIndex <= 0) {
+      continue
+    }
+
+    let key = line.slice(0, separatorIndex).trim()
+    if (!/^[\w-]+$/u.test(key)) {
+      continue
+    }
+
+    let value = line.slice(separatorIndex + 1).trim()
+
+    if (value) {
+      attributes[key] = value
+      continue
+    }
+
+    let collected: string[] = []
+    let nextIndex = index + 1
+
+    while (nextIndex < lines.length) {
+      let nextLine = lines[nextIndex]
+      if (!nextLine || !/^\s+/u.test(nextLine)) {
+        break
+      }
+
+      collected.push(nextLine.trim())
+      nextIndex += 1
+    }
+
+    if (collected.length > 0) {
+      attributes[key] = collected.join(' ')
+      index = nextIndex - 1
+    }
+  }
+
+  return attributes
 }
 
 /**
@@ -125,6 +375,47 @@ async function installSkills(context: AdapterInstallContext): Promise<Result> {
 }
 
 /**
+ * Remove managed Codex role sections from config.toml content.
+ *
+ * @param content - Existing config.toml content.
+ * @param roles - Roles that will be re-rendered.
+ * @returns Content without managed role sections.
+ */
+function stripManagedCodexAgentRoles(
+  content: string,
+  roles: CodexSubagentRole[],
+): string {
+  let sectionNames = new Set(roles.map(role => `agents.${role.name}`))
+  let headerMatcher = /^\[(?<section>[^\]]+)\]\s*$/u
+
+  let cleaned: string[] = []
+  let skipSection = false
+
+  for (let line of content.split(/\r?\n/u)) {
+    let headerMatch = line.match(headerMatcher)
+    if (headerMatch) {
+      let section = headerMatch.groups?.['section']
+      skipSection = section ? sectionNames.has(section) : false
+      if (!skipSection) {
+        cleaned.push(line)
+      }
+      continue
+    }
+
+    if (skipSection) {
+      continue
+    }
+
+    cleaned.push(line)
+  }
+
+  return cleaned
+    .join('\n')
+    .replaceAll(/\n{3,}/gu, '\n\n')
+    .trimEnd()
+}
+
+/**
  * Remove managed MCP sections from the content.
  *
  * @param content - Existing TOML content.
@@ -163,6 +454,41 @@ function stripManagedMcpContent(
     .join('\n')
     .replaceAll(/\n{3,}/gu, '\n\n')
     .trimEnd()
+}
+
+/**
+ * Recursively collect markdown files from a directory.
+ *
+ * @param root - Directory to scan.
+ * @returns Markdown file paths.
+ */
+async function collectMarkdownFiles(root: string): Promise<string[]> {
+  let entries = await readdir(root, { withFileTypes: true }).catch(() => [])
+  let files: string[] = []
+  let directories: string[] = []
+
+  for (let entry of entries) {
+    let entryPath = join(root, entry.name)
+
+    if (entry.isDirectory()) {
+      directories.push(entryPath)
+      continue
+    }
+
+    if (entry.isFile() && entry.name.endsWith('.md')) {
+      files.push(entryPath)
+    }
+  }
+
+  if (directories.length === 0) {
+    return files
+  }
+
+  let nestedFiles = await Promise.all(
+    directories.map(directory => collectMarkdownFiles(directory)),
+  )
+
+  return [...files, ...nestedFiles.flat()]
 }
 
 /**
@@ -207,7 +533,7 @@ function mergeMcpServers(
 
   for (let [serverId, config] of Object.entries(servers)) {
     let block = renderMcpServerBlock(serverId, config)
-    updatedContent = appendMcpServerBlock(updatedContent, block)
+    updatedContent = appendTomlBlock(updatedContent, block)
   }
 
   if (updatedContent.trim().length > 0) {
@@ -215,6 +541,49 @@ function mergeMcpServers(
   }
 
   return updatedContent
+}
+
+/**
+ * Merge Codex multi-agent subagent settings into config.toml.
+ *
+ * @param content - Existing config.toml content.
+ * @param roles - Roles to register.
+ * @returns Updated config.toml content.
+ */
+function mergeCodexSubagentConfig(
+  content: string,
+  roles: CodexSubagentRole[],
+): string {
+  let updatedContent = ensureMultiAgentFeatureFlag(content)
+  updatedContent = stripManagedCodexAgentRoles(updatedContent, roles)
+
+  for (let role of roles) {
+    updatedContent = appendTomlBlock(
+      updatedContent,
+      renderCodexAgentRegistration(role),
+    )
+  }
+
+  return `${updatedContent.trimEnd()}\n`
+}
+
+/**
+ * Normalize a shared subagent name into a Codex role name.
+ *
+ * @param value - Raw role name from frontmatter or file path.
+ * @returns Codex-compatible role name.
+ */
+function normalizeCodexRoleName(value: string): string {
+  let candidate = value.replaceAll('\\', '/').split('/').pop() ?? value
+  let withoutExtension = candidate.replace(/\.[^./\\]+$/u, '')
+  let normalized = withoutExtension
+    .trim()
+    .replaceAll(/\s+/gu, '-')
+    .replaceAll(/[^\w-]/gu, '-')
+    .replaceAll(/-+/gu, '-')
+    .replaceAll(/^[-_]+|[-_]+$/gu, '')
+
+  return normalized || 'subagent'
 }
 
 /**
@@ -262,6 +631,24 @@ function parseMcpServerNames(content: string): string[] {
 }
 
 /**
+ * Render a Codex subagent registration block for `config.toml`.
+ *
+ * @param role - Role metadata.
+ * @returns TOML block.
+ */
+function renderCodexAgentRegistration(role: CodexSubagentRole): string {
+  let lines = [`[agents.${role.name}]`]
+
+  if (role.description) {
+    lines.push(`description = ${tomlString(role.description)}`)
+  }
+
+  lines.push(`config_file = ${tomlString(role.configFile)}`)
+
+  return lines.join('\n')
+}
+
+/**
  * Build a set of MCP section names for a given server list.
  *
  * @param servers - MCP servers to register.
@@ -300,13 +687,51 @@ function isMissingFileError(error: unknown): boolean {
  * @param block - TOML block to append.
  * @returns Updated TOML content.
  */
-function appendMcpServerBlock(content: string, block: string): string {
+function appendTomlBlock(content: string, block: string): string {
   let trimmedBlock = block.trimEnd()
   if (!content.trim()) {
     return trimmedBlock
   }
 
   return `${content.trimEnd()}\n\n${trimmedBlock}`
+}
+
+/**
+ * Render a Codex role config TOML document.
+ *
+ * @param details - Developer instructions to serialize into a role config.
+ * @returns TOML content.
+ */
+function renderCodexRoleConfig(details: {
+  developerInstructions: string
+}): string {
+  return `developer_instructions = ${tomlMultiline(details.developerInstructions)}\n`
+}
+
+/**
+ * Encode a TOML multiline string value.
+ *
+ * @param value - String value to encode.
+ * @returns TOML multiline string literal.
+ */
+function tomlMultiline(value: string): string {
+  let escaped = value
+    .replaceAll('\\', '\\\\')
+    .replaceAll('"""', String.raw`\"""`)
+
+  return `"""${escaped}"""`
+}
+
+/**
+ * Replace the extension of a file path.
+ *
+ * @param filePath - File path to update.
+ * @param extension - New extension, including the leading dot.
+ * @returns Updated path.
+ */
+function replaceExtension(filePath: string, extension: string): string {
+  let normalized = filePath.replace(/\.[^./\\]+$/u, '')
+  return `${normalized}${extension}`
 }
 
 /**
@@ -351,6 +776,7 @@ let mcp = {
  * Adapter installers for Codex.
  */
 let installers = {
+  subagents: installSubagents,
   skills: installSkills,
 }
 
@@ -377,6 +803,7 @@ function getConfig(scope: Scope, rootPath: string): ScopedConfig {
       merge: mergeMcpServers,
     },
     paths: {
+      subagents: '.codex/agents',
       instructions: 'AGENTS.md',
       skills: '.codex/skills',
     },
@@ -389,9 +816,10 @@ function getConfig(scope: Scope, rootPath: string): ScopedConfig {
  *
  * Installs configurations to `~/.codex/` directory:
  *
+ * - `agents/*.toml` - Codex multi-agent role configs,
  * - `skills/<name>/SKILL.md` - shared skills,
  * - `AGENTS.md` - global instructions,
- * - `config.toml` - MCP servers.
+ * - `config.toml` - MCP servers and multi-agent role registrations.
  */
 export let codexAdapter: Adapter = {
   installers,
