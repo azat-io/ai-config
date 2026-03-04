@@ -41,7 +41,8 @@ The installer will:
 - Ask which agents to install
 - Ask for install scope (project or home)
 - Ask which MCP servers to install
-- Prompt for `GITHUB_PERSONAL_ACCESS_TOKEN` only if GitHub MCP is selected
+
+GitHub workflows use `gh` CLI rather than a bundled GitHub MCP server.
 
 <br>
 
@@ -70,7 +71,7 @@ Sources live in this repo and are copied into each agent's config:
 - `agents/`
 - `skills/`
 - `hooks/`
-- `settings/mcp.ts` (GitHub, sequential-thinking, fetch)
+- `settings/mcp.ts` (sequential-thinking, fetch)
 
 ## Install Scope
 
@@ -111,8 +112,9 @@ Uses the user config directories:
 ## Requirements
 
 - Node.js v22+
-- MCP dependencies (only if you plan to use MCP):
-  - `github-mcp-server`
+- `gh` CLI for GitHub repositories, issues, and pull requests
+- Run `gh auth login` before GitHub-related tasks
+- MCP dependencies (only if you plan to use built-in MCP servers):
   - `uv` (for `uvx`)
 
 ## Supported Features
@@ -170,7 +172,6 @@ installation for the change to take effect.
 | Server                                                                                                  | Description                                 |
 | ------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
 | [Fetch](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch)                            | Fetch and process web pages                 |
-| [GitHub](https://github.com/github/github-mcp-server)                                                   | Work with repos, issues, and pull requests  |
 | [Sequential Thinking](https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking) | Step-by-step reasoning for complex problems |
 
 ## See also

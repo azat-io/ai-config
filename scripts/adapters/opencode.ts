@@ -625,6 +625,7 @@ function mergeMcpSettings(
 ): string {
   let config = parseJsonc(content)
   let existingMcp = isRecord(config['mcp']) ? config['mcp'] : {}
+
   let mergedMcp = {
     ...existingMcp,
     ...renderMcpServers(servers),

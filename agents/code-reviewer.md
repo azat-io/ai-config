@@ -47,8 +47,8 @@ Severities:
 
 ## Tools
 
-Use GitHub MCP or gh CLI to read PR context. Do not use WebFetch for GitHub
-URLs.
+Use `gh` CLI to read PR context, for example `gh pr view`, `gh pr diff`, and
+`gh api`. Do not use WebFetch for GitHub URLs.
 
 ## Tests
 

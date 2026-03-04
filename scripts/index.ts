@@ -1,4 +1,4 @@
-import { multiselect, isCancel, password, select, log } from '@clack/prompts'
+import { multiselect, isCancel, select, log } from '@clack/prompts'
 import { pathToFileURL } from 'node:url'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -85,7 +85,6 @@ export async function run(): Promise<void> {
     value: McpServerId
     label: string
   }[] = [
-    { label: 'GitHub (requires token)', value: 'github' },
     { value: 'sequential-thinking', label: 'Sequential Thinking' },
     { value: 'fetch', label: 'Fetch' },
   ]
@@ -102,16 +101,7 @@ export async function run(): Promise<void> {
   }
 
   let enabledMcp = mcpSelection
-  let githubToken: undefined | string
-
-  if (enabledMcp.includes('github')) {
-    githubToken = await ensureGithubToken()
-  }
-
-  let mcpConfig = createMcp({
-    enabled: enabledMcp,
-    githubToken,
-  })
+  let mcpConfig = createMcp({ enabled: enabledMcp })
 
   let sources: Source = {
     instructionsPath: resolveIfExists('instructions/global.md'),
@@ -183,45 +173,6 @@ export async function run(): Promise<void> {
   }
 
   log.info('All installations completed')
-}
-
-/**
- * Prompt for GitHub token until a non-empty value is provided.
- *
- * @returns Valid GitHub Personal Access Token.
- */
-async function promptGithubToken(): Promise<string> {
-  let token = await password({
-    message: 'Enter your GitHub Personal Access Token:',
-  })
-
-  if (isCancel(token)) {
-    log.warn('Installation cancelled')
-    process.exit(0)
-  }
-
-  let trimmed = token.trim()
-  if (trimmed.length === 0) {
-    log.warn('Token cannot be empty')
-    return promptGithubToken()
-  }
-
-  process.env['GITHUB_PERSONAL_ACCESS_TOKEN'] = trimmed
-  return trimmed
-}
-
-/**
- * Ensure the GitHub MCP token is available before installation.
- *
- * @returns The resolved GitHub Personal Access Token.
- */
-async function ensureGithubToken(): Promise<string> {
-  let existingToken = process.env['GITHUB_PERSONAL_ACCESS_TOKEN']
-  if (existingToken) {
-    return existingToken
-  }
-
-  return promptGithubToken()
 }
 
 if (

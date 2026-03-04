@@ -23,10 +23,7 @@ export default defineConfig({
   },
   plugins: [
     dts({
-      include: [
-        path.join(import.meta.dirname, 'environment.d.ts'),
-        path.join(import.meta.dirname, 'scripts/**/*.ts'),
-      ],
+      include: [path.join(import.meta.dirname, 'scripts/**/*.ts')],
       entryRoot: path.resolve(import.meta.dirname, 'scripts'),
       outDir: path.resolve(import.meta.dirname, 'dist'),
     }),
