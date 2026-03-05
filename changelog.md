@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.5.0
+
+[compare changes](https://github.com/azat-io/ai-config/compare/v1.4.0...v1.5.0)
+
+### 🚀 Features
+
+- Replace github mcp with gh cli
+  ([f084274](https://github.com/azat-io/ai-config/commit/f084274))
+- Add explorer agent
+  ([11156ef](https://github.com/azat-io/ai-config/commit/11156ef))
+
+### ❤️ Contributors
+
+- Azat S. ([@azat-io](https://github.com/azat-io))
+
 ## v1.4.0
 
 [compare changes](https://github.com/azat-io/ai-config/compare/v1.3.0...v1.4.0)
