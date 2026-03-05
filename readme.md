@@ -164,6 +164,7 @@ installation for the change to take effect.
 | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
 | [`code-reviewer`](https://github.com/azat-io/ai-config/blob/main/agents/code-reviewer.md)               | Review code for correctness, security, and maintainability |
 | [`documentation-writer`](https://github.com/azat-io/ai-config/blob/main/agents/documentation-writer.md) | Write README, API docs, JSDoc, and contributing guides     |
+| [`explorer`](https://github.com/azat-io/ai-config/blob/main/agents/explorer.md)                         | Build repository maps and collect evidence-based facts     |
 | [`implementer`](https://github.com/azat-io/ai-config/blob/main/agents/implementer.md)                   | Implement features following plans and specs               |
 | [`test-writer`](https://github.com/azat-io/ai-config/blob/main/agents/test-writer.md)                   | Write focused tests with full code path coverage           |
 

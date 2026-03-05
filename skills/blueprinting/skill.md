@@ -124,7 +124,8 @@ Each step is one atomic action:
 
 ## Delegate
 
-- Use **Explore** subagent to inventory files and entry points
+- Use **explorer** subagent to inventory files, entry points, dependencies, and
+  test/lint/typecheck/build commands
 - Use **test-writer** agent for TDD tasks in blueprint
 
 ## After Blueprinting

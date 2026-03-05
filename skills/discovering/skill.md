@@ -71,8 +71,8 @@ Get sign-off before proceeding.
 
 ## Delegate
 
-- Use **Explore** subagent to analyze codebase, docs, and recent changes
-  (Context phase)
+- Use **explorer** subagent for a breadth-first repo map and evidence from
+  code/docs/recent history (Context phase)
 
 ## After Discovery
 

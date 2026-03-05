@@ -105,7 +105,8 @@ Stop research when:
 
 ## Delegate
 
-- Use **Explore** subagent to collect signals (code, docs, history)
+- Use **explorer** subagent to collect evidence from code/docs/history and
+  dependency/workspace structure before comparing options
 - Use **sequential-thinking** MCP for complex trade-off analysis
 
 ## After Research
