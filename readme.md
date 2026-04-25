@@ -5,7 +5,6 @@
   alt="AI Config Logo"
   align="right"
   height="160"
-  width="160"
 />
 
 [![Version](https://img.shields.io/npm/v/@azat-io/ai-config.svg?color=fff&labelColor=fc60bc)](https://npmjs.com/package/@azat-io/ai-config)
