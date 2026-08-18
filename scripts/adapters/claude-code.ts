@@ -15,6 +15,7 @@ import { ensureExecutableShellHooks } from '../utils/ensure-executable-shell-hoo
 import { mergeMcpSettingsWithHook } from '../utils/merge-mcp-settings-with-hook'
 import { copyDirectoryContents } from '../utils/copy-directory-contents'
 import { resolveHookCommand } from '../utils/resolve-hook-command'
+import { installSkills } from '../installers/install-skills'
 import { createResult } from '../utils/create-result'
 import { expandHome } from '../utils/expand-home'
 
@@ -176,6 +177,7 @@ let mcp = {
  * Adapter installers for Claude Code.
  */
 let installers = {
+  skills: installSkills,
   hooks: installHooks,
 }
 
@@ -222,7 +224,7 @@ function getConfig(scope: Scope, rootPath: string): ScopedConfig {
  *
  * - `commands/*.md` - slash commands,
  * - `agents/*.md` - subagents,
- * - `skills/<name>/skill.md` - skills,
+ * - `skills/<name>/SKILL.md` - skills,
  * - `CLAUDE.md` - global instructions,
  * - `settings.json` - MCP servers (merged with existing).
  */

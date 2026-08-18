@@ -19,6 +19,7 @@ import { copyDirectoryContents } from '../utils/copy-directory-contents'
 import { isCanonicalToolName } from '../utils/is-canonical-tool-name'
 import { resolveHookCommand } from '../utils/resolve-hook-command'
 import { splitFrontmatter } from '../utils/split-frontmatter'
+import { installSkills } from '../installers/install-skills'
 import { createResult } from '../utils/create-result'
 import { expandHome } from '../utils/expand-home'
 
@@ -632,6 +633,7 @@ let mcp = {
 let installers = {
   subagents: installSubagents,
   commands: installCommands,
+  skills: installSkills,
   hooks: installHooks,
 }
 
