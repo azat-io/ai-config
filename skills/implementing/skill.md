@@ -1,8 +1,9 @@
 ---
 name: implementing
 description:
-  Use when an approved implementation blueprint exists and you are about to
-  start implementation
+  Execute an approved implementation blueprint step by step with verification
+  and checkpoints. Use when a blueprint exists and you are about to start
+  implementation
 ---
 
 # Implementing

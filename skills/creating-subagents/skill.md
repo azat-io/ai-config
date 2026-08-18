@@ -1,8 +1,9 @@
 ---
 name: creating-subagents
 description:
-  Use when need to create specialized subagent for recurring tasks,
-  domain-specific work, or pipeline automation
+  Design specialized subagents with focused prompts, scoped tools, and clear
+  triggers. Use when a recurring task, domain-specific work, or pipeline step
+  needs its own agent
 ---
 
 # Creating Subagents

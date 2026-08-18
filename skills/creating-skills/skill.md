@@ -1,8 +1,9 @@
 ---
 name: creating-skills
 description:
-  Use when need to create reusable technique, pattern, or reference guide for AI
-  agents
+  Create reusable skills that teach AI agents techniques, patterns, or reference
+  material. Use when a proven approach should be captured for reuse across
+  projects
 ---
 
 # Creating Skills
@@ -41,7 +42,7 @@ skills/
 ```markdown
 ---
 name: skill-name
-description: Use when [specific triggering conditions].
+description: [What it does]. Use when [specific triggering conditions].
 ---
 
 # Skill Name
@@ -74,20 +75,30 @@ What goes wrong + fixes.
 
 ## Description Rules
 
-**Description = When to Use, NOT What It Does**
+**Description = What It Does + When to Use It**
+
+Write in third person: one clause for the capability, then the triggers.
 
 ```yaml
-# ❌ BAD: Describes process
-description: Evaluates options with evidence to choose approach.
+# ❌ BAD: Retells the workflow step by step
+description:
+  Frame the problem, collect signals, compare 2-3 options, write a brief.
 
 # ❌ BAD: Too vague
 description: For research tasks.
 
-# ✅ GOOD: Triggering conditions only
+# ❌ BAD: Triggers only, no capability signal
 description: Use when requirements are fuzzy or multiple approaches exist.
+
+# ✅ GOOD: Capability + triggering conditions
+description:
+  Evaluate technical options with evidence and choose an approach. Use when
+  requirements are fuzzy or multiple approaches exist.
 ```
 
-Why: If description summarizes workflow, AI may follow description instead of
+Why: The description is the only signal AI uses to pick a skill among many —
+without a capability summary, routing degrades. Keep the capability to one
+clause: if it retells the workflow, AI may follow the description instead of
 reading the full skill content.
 
 ## Naming
@@ -130,14 +141,14 @@ When skill fails, identify the gap and fix.
 
 ## Common Mistakes
 
-| Mistake                       | Fix                                         |
-| ----------------------------- | ------------------------------------------- |
-| Description describes process | Only triggering conditions                  |
-| Too much content              | Minimal, scannable, tables                  |
-| Narrative storytelling        | Structured reference format                 |
-| Project-specific rules        | Put in CLAUDE.md instead                    |
-| No "When to Use" section      | Always include triggers and skip conditions |
-| Generic labels in examples    | Semantic, meaningful names                  |
+| Mistake                      | Fix                                         |
+| ---------------------------- | ------------------------------------------- |
+| Description retells workflow | One capability clause + triggers            |
+| Too much content             | Minimal, scannable, tables                  |
+| Narrative storytelling       | Structured reference format                 |
+| Project-specific rules       | Put in CLAUDE.md instead                    |
+| No "When to Use" section     | Always include triggers and skip conditions |
+| Generic labels in examples   | Semantic, meaningful names                  |
 
 ## Cross-References
 
@@ -156,12 +167,12 @@ Reference other skills by name:
 ## Creation Checklist
 
 - [ ] Problem clearly defined
-- [ ] Description starts with "Use when..."
-- [ ] Description has triggering conditions only (no workflow)
+- [ ] Description states capability, then "Use when..." triggers
+- [ ] Description has no step-by-step workflow
 - [ ] Name uses gerund for processes
 - [ ] When to Use section with triggers and skip conditions
 - [ ] Quick Reference for scanning
 - [ ] Common Mistakes section
 - [ ] Delegate section if skill uses agents or subagents
-- [ ] Pipeline navigation (what comes before/after)
+- [ ] Pipeline navigation (what comes before/after), if part of a pipeline
 - [ ] Tested on real scenario

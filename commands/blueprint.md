@@ -1,8 +1,9 @@
 ---
 name: blueprint
 description:
-  Use when approach is chosen and need a detailed implementation plan before
-  coding
+  Break a chosen approach into a detailed implementation blueprint with
+  bite-sized tasks, exact paths, and verification steps. Use when approach is
+  chosen and you need a plan before coding
 disable-model-invocation: true
 ---
 

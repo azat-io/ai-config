@@ -1,8 +1,9 @@
 ---
 name: refactor
 description:
-  Use when code needs behavior-preserving restructuring to improve clarity,
-  reduce duplication, or enable safer changes
+  Restructure code without changing behavior, backed by tests or
+  characterization checks. Use when code needs better clarity, less duplication,
+  or safer future changes
 disable-model-invocation: true
 ---
 
