@@ -1,9 +1,10 @@
-import { readdir, rename } from 'node:fs/promises'
+import { rename } from 'node:fs/promises'
 import { join } from 'node:path'
 
 import type { AdapterInstallContext } from '../typings/adapter-install-context'
 import type { Result } from '../typings/result'
 
+import { readOptionalDirectoryEntries } from '../utils/read-optional-directory-entries'
 import { copyDirectoryContents } from '../utils/copy-directory-contents'
 import { createResult } from '../utils/create-result'
 
@@ -22,9 +23,9 @@ export async function installSkills(
     context.destinationPath,
   )
 
-  let skillDirectories = await readdir(context.destinationPath, {
-    withFileTypes: true,
-  }).catch(() => [])
+  let skillDirectories = await readOptionalDirectoryEntries(
+    context.destinationPath,
+  )
 
   let renameResults = await Promise.allSettled(
     skillDirectories

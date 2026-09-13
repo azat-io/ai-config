@@ -1,4 +1,4 @@
-import { writeFile, readFile, readdir, mkdir } from 'node:fs/promises'
+import { writeFile, readFile, mkdir } from 'node:fs/promises'
 import { relative, dirname, join } from 'node:path'
 import { homedir } from 'node:os'
 
@@ -11,6 +11,9 @@ import type { Result } from '../typings/result'
 import type { Status } from '../typings/status'
 import type { Scope } from '../typings/scope'
 
+import { readOptionalDirectoryEntries } from '../utils/read-optional-directory-entries'
+import { readOptionalDirectory } from '../utils/read-optional-directory'
+import { readOptionalFile } from '../utils/read-optional-file'
 import { splitFrontmatter } from '../utils/split-frontmatter'
 import { installSkills } from '../installers/install-skills'
 import { createResult } from '../utils/create-result'
@@ -97,7 +100,7 @@ async function installSubagents(
 
   let configDirectory = dirname(context.destinationPath)
   let configFilePath = join(configDirectory, 'config.toml')
-  let configContent = await readFile(configFilePath, 'utf8').catch(() => '')
+  let configContent = await readOptionalFile(configFilePath)
   let updatedConfig = mergeCodexSubagentConfig(configContent, roles)
 
   await mkdir(configDirectory, { recursive: true })
@@ -246,23 +249,21 @@ async function check(): Promise<Status> {
 
   try {
     let agentsPath = join(basePath, 'agents')
-    let agentFiles = await readdir(agentsPath).catch(() => [])
+    let agentFiles = await readOptionalDirectory(agentsPath)
     status.components.subagents = agentFiles
       .filter(file => file.endsWith('.toml'))
       .map(file => file.replace('.toml', ''))
 
     let skillsPath = join(basePath, 'skills')
-    let skillDirectories = await readdir(skillsPath).catch(() => [])
+    let skillDirectories = await readOptionalDirectory(skillsPath)
     status.components.skills = skillDirectories
 
     let configFilePath = join(basePath, 'config.toml')
-    let configContent = await readFile(configFilePath, 'utf8').catch(() => '')
+    let configContent = await readOptionalFile(configFilePath)
     status.components.mcp = parseMcpServerNames(configContent)
 
     let instructionsPath = join(basePath, 'AGENTS.md')
-    let instructionsContent = await readFile(instructionsPath, 'utf8').catch(
-      () => '',
-    )
+    let instructionsContent = await readOptionalFile(instructionsPath)
     if (instructionsContent) {
       status.components.instructions = ['AGENTS.md']
     }
@@ -419,7 +420,7 @@ function stripManagedMcpContent(
  * @returns Markdown file paths.
  */
 async function collectMarkdownFiles(root: string): Promise<string[]> {
-  let entries = await readdir(root, { withFileTypes: true }).catch(() => [])
+  let entries = await readOptionalDirectoryEntries(root)
   let files: string[] = []
   let directories: string[] = []
 

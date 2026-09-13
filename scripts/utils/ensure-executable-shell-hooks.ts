@@ -1,5 +1,7 @@
-import { readdir, chmod } from 'node:fs/promises'
+import { chmod } from 'node:fs/promises'
 import { join } from 'node:path'
+
+import { readOptionalDirectoryEntries } from './read-optional-directory-entries'
 
 /**
  * Ensure all shell hook files are executable.
@@ -9,7 +11,7 @@ import { join } from 'node:path'
 export async function ensureExecutableShellHooks(
   rootPath: string,
 ): Promise<void> {
-  let entries = await readdir(rootPath, { withFileTypes: true }).catch(() => [])
+  let entries = await readOptionalDirectoryEntries(rootPath)
 
   await Promise.all(
     entries.map(async entry => {

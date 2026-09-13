@@ -25,7 +25,7 @@ export default defineConfig({
     dts({
       include: [path.join(import.meta.dirname, 'scripts/**/*.ts')],
       entryRoot: path.resolve(import.meta.dirname, 'scripts'),
-      outDir: path.resolve(import.meta.dirname, 'dist'),
+      outDirs: path.resolve(import.meta.dirname, 'dist'),
     }),
   ],
   root: path.resolve(import.meta.dirname, 'scripts'),

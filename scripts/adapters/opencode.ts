@@ -1,4 +1,4 @@
-import { writeFile, copyFile, readFile, readdir, mkdir } from 'node:fs/promises'
+import { writeFile, copyFile, readFile, mkdir } from 'node:fs/promises'
 import { relative, dirname, join } from 'node:path'
 import { homedir } from 'node:os'
 
@@ -12,8 +12,11 @@ import type { Status } from '../typings/status'
 import type { Scope } from '../typings/scope'
 import type { Tool } from '../typings/tool'
 
+import { readOptionalDirectoryEntries } from '../utils/read-optional-directory-entries'
 import { extractToolsFromFrontmatter } from '../utils/extract-tools-from-frontmatter'
+import { readOptionalDirectory } from '../utils/read-optional-directory'
 import { isCanonicalToolName } from '../utils/is-canonical-tool-name'
+import { readOptionalFile } from '../utils/read-optional-file'
 import { splitFrontmatter } from '../utils/split-frontmatter'
 import { installSkills } from '../installers/install-skills'
 import { createResult } from '../utils/create-result'
@@ -96,32 +99,30 @@ async function check(): Promise<Status> {
 
   try {
     let commandsPath = join(basePath, 'commands')
-    let commandFiles = await readdir(commandsPath).catch(() => [])
+    let commandFiles = await readOptionalDirectory(commandsPath)
     status.components.commands = commandFiles
       .filter(file => file.endsWith('.md'))
       .map(file => file.replace('.md', ''))
 
     let agentsPath = join(basePath, 'agents')
-    let agentFiles = await readdir(agentsPath).catch(() => [])
+    let agentFiles = await readOptionalDirectory(agentsPath)
     status.components.subagents = agentFiles
       .filter(file => file.endsWith('.md'))
       .map(file => file.replace('.md', ''))
 
     let skillsPath = join(basePath, 'skill')
-    let skillDirectories = await readdir(skillsPath).catch(() => [])
+    let skillDirectories = await readOptionalDirectory(skillsPath)
     status.components.skills = skillDirectories
 
     let settingsPath = join(basePath, 'opencode.json')
-    let settingsContent = await readFile(settingsPath, 'utf8').catch(() => '')
+    let settingsContent = await readOptionalFile(settingsPath)
     let settings = parseJsonc(settingsContent)
     if (isRecord(settings['mcp'])) {
       status.components.mcp = Object.keys(settings['mcp'])
     }
 
     let instructionsPath = join(basePath, 'AGENTS.md')
-    let instructionsContent = await readFile(instructionsPath, 'utf8').catch(
-      () => '',
-    )
+    let instructionsContent = await readOptionalFile(instructionsPath)
     if (instructionsContent) {
       status.components.instructions = ['AGENTS.md']
     }
@@ -213,7 +214,6 @@ function stripJsonComments(input: string): string {
 
   for (let index = 0; index < input.length; index += 1) {
     let char = input[index]
-    let next = input[index + 1]
 
     if (inString) {
       result += char
@@ -237,6 +237,8 @@ function stripJsonComments(input: string): string {
       result += char
       continue
     }
+
+    let next = input[index + 1]
 
     if (char === '/' && next === '/') {
       while (index < input.length && input[index] !== '\n') {
@@ -336,7 +338,7 @@ async function installInstructions(
   result.files.push(context.destinationPath)
 
   let settingsPath = join(context.basePath, 'opencode.json')
-  let settingsContent = await readFile(settingsPath, 'utf8').catch(() => '')
+  let settingsContent = await readOptionalFile(settingsPath)
   let settings = parseJsonc(settingsContent)
   let instructions = normalizeInstructionList(settings['instructions'])
 
@@ -423,38 +425,6 @@ async function installSubagents(
 }
 
 /**
- * Recursively collect markdown files from a directory.
- *
- * @param root - Directory to scan for markdown files.
- * @returns List of markdown file paths.
- */
-async function collectMarkdownFiles(root: string): Promise<string[]> {
-  let entries = await readdir(root, { withFileTypes: true }).catch(() => [])
-  let files: string[] = []
-  let directories: string[] = []
-
-  for (let entry of entries) {
-    let entryPath = join(root, entry.name)
-
-    if (entry.isDirectory()) {
-      directories.push(entryPath)
-    } else if (entry.isFile() && entry.name.endsWith('.md')) {
-      files.push(entryPath)
-    }
-  }
-
-  if (directories.length === 0) {
-    return files
-  }
-
-  let nestedFiles = await Promise.all(
-    directories.map(directory => collectMarkdownFiles(directory)),
-  )
-
-  return [...files, ...nestedFiles.flat()]
-}
-
-/**
  * Normalize `tools` frontmatter for OpenCode.
  *
  * @param content - Markdown content.
@@ -487,6 +457,38 @@ function normalizeSubagentToolsForOpenCode(content: string): string {
   }
 
   return ['---', ...lines, '---', body].join('\n')
+}
+
+/**
+ * Recursively collect markdown files from a directory.
+ *
+ * @param root - Directory to scan for markdown files.
+ * @returns List of markdown file paths.
+ */
+async function collectMarkdownFiles(root: string): Promise<string[]> {
+  let entries = await readOptionalDirectoryEntries(root)
+  let files: string[] = []
+  let directories: string[] = []
+
+  for (let entry of entries) {
+    let entryPath = join(root, entry.name)
+
+    if (entry.isDirectory()) {
+      directories.push(entryPath)
+    } else if (entry.isFile() && entry.name.endsWith('.md')) {
+      files.push(entryPath)
+    }
+  }
+
+  if (directories.length === 0) {
+    return files
+  }
+
+  let nestedFiles = await Promise.all(
+    directories.map(directory => collectMarkdownFiles(directory)),
+  )
+
+  return [...files, ...nestedFiles.flat()]
 }
 
 /**

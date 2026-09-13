@@ -1,4 +1,4 @@
-import { writeFile, readFile, readdir, mkdir } from 'node:fs/promises'
+import { writeFile, readFile, mkdir } from 'node:fs/promises'
 import { relative, dirname, join } from 'node:path'
 import { homedir } from 'node:os'
 
@@ -12,12 +12,15 @@ import type { Scope } from '../typings/scope'
 import type { Tool } from '../typings/tool'
 
 import { createMcpSettingsMergeWithHook } from '../utils/create-mcp-settings-merge-with-hook'
+import { readOptionalDirectoryEntries } from '../utils/read-optional-directory-entries'
 import { extractToolsFromFrontmatter } from '../utils/extract-tools-from-frontmatter'
 import { ensureExecutableShellHooks } from '../utils/ensure-executable-shell-hooks'
 import { mergeMcpSettingsWithHook } from '../utils/merge-mcp-settings-with-hook'
 import { copyDirectoryContents } from '../utils/copy-directory-contents'
+import { readOptionalDirectory } from '../utils/read-optional-directory'
 import { isCanonicalToolName } from '../utils/is-canonical-tool-name'
 import { resolveHookCommand } from '../utils/resolve-hook-command'
+import { readOptionalFile } from '../utils/read-optional-file'
 import { splitFrontmatter } from '../utils/split-frontmatter'
 import { installSkills } from '../installers/install-skills'
 import { createResult } from '../utils/create-result'
@@ -86,29 +89,29 @@ async function check(): Promise<Status> {
 
   try {
     let commandsPath = join(basePath, 'commands')
-    let commandFiles = await readdir(commandsPath).catch(() => [])
+    let commandFiles = await readOptionalDirectory(commandsPath)
     status.components.commands = commandFiles
       .filter(file => file.endsWith('.toml'))
       .map(file => file.replace('.toml', ''))
 
     let agentsPath = join(basePath, 'agents')
-    let agentFiles = await readdir(agentsPath).catch(() => [])
+    let agentFiles = await readOptionalDirectory(agentsPath)
     status.components.subagents = agentFiles
       .filter(file => file.endsWith('.md'))
       .map(file => file.replace('.md', ''))
 
     let skillsPath = join(basePath, 'skills')
-    let skillDirectories = await readdir(skillsPath).catch(() => [])
+    let skillDirectories = await readOptionalDirectory(skillsPath)
     status.components.skills = skillDirectories
 
     let hooksPath = join(basePath, 'hooks')
-    let hookFiles = await readdir(hooksPath).catch(() => [])
+    let hookFiles = await readOptionalDirectory(hooksPath)
     status.components.hooks = hookFiles
       .filter(file => file.endsWith('.sh'))
       .map(file => file.replace('.sh', ''))
 
     let settingsPath = join(basePath, 'settings.json')
-    let settingsContent = await readFile(settingsPath, 'utf8').catch(() => '{}')
+    let settingsContent = await readOptionalFile(settingsPath, '{}')
     let settings = JSON.parse(settingsContent) as {
       mcpServers?: Record<string, unknown>
     }
@@ -117,9 +120,7 @@ async function check(): Promise<Status> {
     }
 
     let instructionsPath = join(basePath, 'GEMINI.md')
-    let instructionsContent = await readFile(instructionsPath, 'utf8').catch(
-      () => '',
-    )
+    let instructionsContent = await readOptionalFile(instructionsPath)
     if (instructionsContent) {
       status.components.instructions = ['GEMINI.md']
     }
@@ -267,7 +268,7 @@ async function installHooks(context: AdapterInstallContext): Promise<Result> {
   await ensureExecutableShellHooks(context.destinationPath)
 
   let settingsPath = join(dirname(context.destinationPath), 'settings.json')
-  let settingsContent = await readFile(settingsPath, 'utf8').catch(() => '')
+  let settingsContent = await readOptionalFile(settingsPath)
   let merged = mergeMcpSettingsWithHook(
     settingsContent,
     {},
@@ -362,7 +363,7 @@ async function installCommands(
  * @returns List of markdown file paths.
  */
 async function collectMarkdownFiles(root: string): Promise<string[]> {
-  let entries = await readdir(root, { withFileTypes: true }).catch(() => [])
+  let entries = await readOptionalDirectoryEntries(root)
   let files: string[] = []
   let directories: string[] = []
 

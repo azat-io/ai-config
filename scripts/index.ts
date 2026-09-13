@@ -1,4 +1,4 @@
-import { multiselect, isCancel, select, log } from '@clack/prompts'
+import { multiselect, select, log } from '@clack/prompts'
 import { pathToFileURL } from 'node:url'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -12,6 +12,7 @@ import type { Source } from './typings/source'
 import type { Scope } from './typings/scope'
 import type { Agent } from './typings/agent'
 
+import { isPromptCancelled } from './utils/is-prompt-cancelled'
 import { installAdapter } from './installers/install-adapter'
 import { claudeCodeAdapter } from './adapters/claude-code'
 import { geminiCliAdapter } from './adapters/gemini-cli'
@@ -53,7 +54,7 @@ export async function run(): Promise<void> {
     required: true,
   })
 
-  if (isCancel(agents)) {
+  if (isPromptCancelled(agents)) {
     log.warn('Installation cancelled')
     process.exit(0)
   }
@@ -69,7 +70,7 @@ export async function run(): Promise<void> {
     initialValue: 'global',
   })
 
-  if (isCancel(scope)) {
+  if (isPromptCancelled(scope)) {
     log.warn('Installation cancelled')
     process.exit(0)
   }
@@ -95,7 +96,7 @@ export async function run(): Promise<void> {
     options: mcpOptions,
   })
 
-  if (isCancel(mcpSelection)) {
+  if (isPromptCancelled(mcpSelection)) {
     log.warn('Installation cancelled')
     process.exit(0)
   }
@@ -123,12 +124,13 @@ export async function run(): Promise<void> {
 
   for (let agent of selectedAgents) {
     let adapter = adapters[agent]
-    let adapterInstallers = installers[agent]
 
     if (!adapter) {
       log.error(`No adapter found for agent: ${agent}`)
       continue
     }
+
+    let adapterInstallers = installers[agent]
 
     let label = applyColor(adapter.color, adapter.name)
     let scopedConfig = adapter.getConfig(scope, projectRoot)

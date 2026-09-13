@@ -1,10 +1,11 @@
-import { writeFile, readFile, mkdir } from 'node:fs/promises'
+import { writeFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 
 import type { Adapter } from '../typings/adapter'
 import type { Result } from '../typings/result'
 import type { Source } from '../typings/source'
 
+import { readOptionalFile } from '../utils/read-optional-file'
 import { createResult } from '../utils/create-result'
 
 /**
@@ -29,7 +30,7 @@ export async function installMcp(
   await mkdir(basePath, { recursive: true })
 
   let configPath = join(basePath, adapter.mcp.fileName)
-  let existingContent = await readFile(configPath, 'utf8').catch(() => '')
+  let existingContent = await readOptionalFile(configPath)
   let updatedContent = adapter.mcp.merge(existingContent, sources.mcp)
 
   await writeFile(configPath, updatedContent, 'utf8')
